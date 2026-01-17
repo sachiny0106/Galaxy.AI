@@ -3,7 +3,8 @@ import { useState } from "react";
 import { History, ChevronLeft, ChevronRight, X, Play } from "lucide-react";
 import { useHistoryStore } from "@/store/history-store";
 import { useWorkflowStore } from "@/store/workflow-store";
-import { RunStatus } from "@/types/workflow";
+import { RunStatus, WorkflowRun } from "@/types/workflow";
+import { runWorkflow, ExecutionContext } from "@/lib/execution-engine";
 
 function formatDuration(ms: number | null): string {
     if (!ms) return "-";
@@ -37,11 +38,70 @@ export function RightSidebar() {
     const isHistoryMode = useHistoryStore((s) => s.isHistoryMode);
     const enterHistoryMode = useHistoryStore((s) => s.enterHistoryMode);
     const exitHistoryMode = useHistoryStore((s) => s.exitHistoryMode);
+    const addRun = useHistoryStore((s) => s.addRun);
+    const updateRun = useHistoryStore((s) => s.updateRun);
+
+    const nodes = useWorkflowStore((s) => s.nodes);
+    const edges = useWorkflowStore((s) => s.edges);
     const isExecuting = useWorkflowStore((s) => s.isExecuting);
+    const setExecuting = useWorkflowStore((s) => s.setExecuting);
+    const setNodeExecuting = useWorkflowStore((s) => s.setNodeExecuting);
+    const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
 
     const handleRunWorkflow = async () => {
-        // This will be connected to the execution engine
-        console.log("Run workflow clicked");
+        if (nodes.length === 0) return;
+
+        const runId = `run-${Date.now()}`;
+        const startTime = Date.now();
+
+        const newRun: WorkflowRun = {
+            id: runId,
+            status: "running",
+            startedAt: new Date(),
+            completedAt: null,
+            duration: null,
+            scope: "full",
+            nodeExecutions: [],
+        };
+
+        addRun(newRun);
+        setExecuting(true);
+
+        const context: ExecutionContext = {
+            nodeOutputs: new Map(),
+            onNodeStart: (nodeId) => {
+                setNodeExecuting(nodeId, true);
+            },
+            onNodeComplete: (nodeId, outputs) => {
+                setNodeExecuting(nodeId, false);
+                // Update node with output if it's an LLM node
+                const node = nodes.find((n) => n.id === nodeId);
+                if (node?.type === "llm" && outputs.text) {
+                    updateNodeData(nodeId, { response: outputs.text, isLoading: false });
+                }
+            },
+            onNodeError: (nodeId, error) => {
+                setNodeExecuting(nodeId, false);
+                console.error(`Node ${nodeId} error:`, error);
+            },
+        };
+
+        try {
+            await runWorkflow(nodes, edges, context);
+            updateRun(runId, {
+                status: "success",
+                completedAt: new Date(),
+                duration: Date.now() - startTime,
+            });
+        } catch (error) {
+            updateRun(runId, {
+                status: "failed",
+                completedAt: new Date(),
+                duration: Date.now() - startTime,
+            });
+        } finally {
+            setExecuting(false);
+        }
     };
 
     return (
@@ -77,7 +137,7 @@ export function RightSidebar() {
                         <button
                             className="btn btn-primary"
                             onClick={handleRunWorkflow}
-                            disabled={isExecuting}
+                            disabled={isExecuting || nodes.length === 0}
                             style={{ width: "100%" }}
                         >
                             {isExecuting ? (
