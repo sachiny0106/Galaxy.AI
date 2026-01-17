@@ -27,8 +27,8 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get the model
-        const geminiModel = genAI.getGenerativeModel({ model: model || "gemini-1.5-flash" });
+        // Get the model - use gemini-2.0-flash as the default
+        const geminiModel = genAI.getGenerativeModel({ model: model || "gemini-2.0-flash" });
 
         // Build the prompt
         const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
