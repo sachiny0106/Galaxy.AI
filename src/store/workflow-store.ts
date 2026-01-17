@@ -40,44 +40,34 @@ interface WorkflowState {
     reset: () => void;
 }
 
-const createNodeDefaults = (type: NodeTypeValue): WorkflowNodeData => {
-    switch (type) {
-        case NodeType.TEXT:
-            return { label: "Text", text: "" };
-        case NodeType.UPLOAD_IMAGE:
-            return { label: "Upload Image", imageUrl: null, fileName: null };
-        case NodeType.UPLOAD_VIDEO:
-            return { label: "Upload Video", videoUrl: null, fileName: null };
-        case NodeType.LLM:
-            return {
-                label: "Run LLM",
-                model: "gemini-1.5-flash",
-                systemPrompt: "",
-                userMessage: "",
-                images: [],
-                response: null,
-                isLoading: false,
-            };
-        case NodeType.CROP_IMAGE:
-            return {
-                label: "Crop Image",
-                imageUrl: null,
-                xPercent: 0,
-                yPercent: 0,
-                widthPercent: 100,
-                heightPercent: 100,
-                outputUrl: null,
-            };
-        case NodeType.EXTRACT_FRAME:
-            return {
-                label: "Extract Frame",
-                videoUrl: null,
-                timestamp: 0,
-                outputUrl: null,
-            };
-        default:
-            return { label: "Unknown", text: "" };
-    }
+const DEFAULT_NODE_DATA: Record<NodeTypeValue, () => WorkflowNodeData> = {
+    [NodeType.TEXT]: () => ({ label: "Text", text: "" }),
+    [NodeType.UPLOAD_IMAGE]: () => ({ label: "Upload Image", imageUrl: null, fileName: null }),
+    [NodeType.UPLOAD_VIDEO]: () => ({ label: "Upload Video", videoUrl: null, fileName: null }),
+    [NodeType.LLM]: () => ({
+        label: "Run LLM",
+        model: "gemini-1.5-flash",
+        systemPrompt: "",
+        userMessage: "",
+        images: [],
+        response: null,
+        isLoading: false,
+    }),
+    [NodeType.CROP_IMAGE]: () => ({
+        label: "Crop Image",
+        imageUrl: null,
+        xPercent: 0,
+        yPercent: 0,
+        widthPercent: 100,
+        heightPercent: 100,
+        outputUrl: null,
+    }),
+    [NodeType.EXTRACT_FRAME]: () => ({
+        label: "Extract Frame",
+        videoUrl: null,
+        timestamp: 0,
+        outputUrl: null,
+    }),
 };
 
 let nodeIdCounter = 100;
@@ -90,14 +80,13 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     isExecuting: false,
 
     setNodes: (nodes) => {
-        // Sync the counter to avoid duplicate IDs
+        // simple max id check
         const maxId = nodes.reduce((max, n) => {
-            const match = n.id.match(/node-(\d+)/);
-            return match ? Math.max(max, parseInt(match[1], 10)) : max;
+            const id = parseInt(n.id.replace("node-", "") || "0");
+            return Math.max(max, id);
         }, 0);
-        if (maxId >= nodeIdCounter) {
-            nodeIdCounter = maxId + 1;
-        }
+
+        if (maxId >= nodeIdCounter) nodeIdCounter = maxId + 1;
         set({ nodes });
     },
     setEdges: (edges) => set({ edges }),
@@ -128,13 +117,11 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
     addNode: (type, position) => {
         const id = `node-${nodeIdCounter++}`;
-        const newNode: WorkflowNode = {
-            id,
-            type,
-            position,
-            data: createNodeDefaults(type),
-        };
-        set({ nodes: [...get().nodes, newNode] });
+        const data = (DEFAULT_NODE_DATA[type] ? DEFAULT_NODE_DATA[type]() : { label: "Unknown", text: "" }) as WorkflowNodeData;
+
+        set({
+            nodes: [...get().nodes, { id, type, position, data }]
+        });
     },
 
     updateNodeData: (nodeId, data) => {

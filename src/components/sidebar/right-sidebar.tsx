@@ -262,6 +262,7 @@ export function RightSidebar() {
             <div className="sidebar-header">
                 <button
                     onClick={() => setCollapsed(!collapsed)}
+                    className="sidebar-toggle"
                     style={{
                         background: "none",
                         border: "none",
@@ -278,7 +279,6 @@ export function RightSidebar() {
 
             {!collapsed && (
                 <>
-                    {/* Action Buttons */}
                     <div style={{ padding: 12, borderBottom: "1px solid var(--border)", display: "flex", gap: 8 }}>
                         <button
                             className="btn btn-primary"
@@ -287,15 +287,15 @@ export function RightSidebar() {
                             style={{ flex: 1 }}
                         >
                             {isExecuting ? (
-                                <>
+                                <div className="flex items-center gap-2">
                                     <div className="spinner" style={{ width: 16, height: 16 }} />
-                                    Running...
-                                </>
+                                    <span>Running...</span>
+                                </div>
                             ) : (
-                                <>
+                                <div className="flex items-center gap-2 justify-center">
                                     <Play size={16} />
-                                    Run Workflow
-                                </>
+                                    <span>Run Workflow</span>
+                                </div>
                             )}
                         </button>
                         <button
@@ -308,7 +308,6 @@ export function RightSidebar() {
                         </button>
                     </div>
 
-                    {/* History Mode - Detail View */}
                     {isHistoryMode && selectedRun ? (
                         <>
                             <div
@@ -325,12 +324,7 @@ export function RightSidebar() {
                                 <span>Run Details</span>
                                 <button
                                     onClick={exitHistoryMode}
-                                    style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "var(--accent)",
-                                        cursor: "pointer",
-                                    }}
+                                    style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer" }}
                                 >
                                     <X size={14} />
                                 </button>
@@ -338,11 +332,10 @@ export function RightSidebar() {
                             <RunDetailView run={selectedRun} />
                         </>
                     ) : (
-                        /* Runs List */
-                        <div className="sidebar-content" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div className="sidebar-content flex flex-col gap-2">
                             {runs.length === 0 ? (
-                                <div style={{ textAlign: "center", color: "var(--text-muted)", padding: 20, fontSize: 13 }}>
-                                    <History size={32} style={{ opacity: 0.5, marginBottom: 8 }} />
+                                <div className="text-center text-muted p-5 text-sm">
+                                    <History size={32} className="opacity-50 mb-2 mx-auto" />
                                     <p>No runs yet</p>
                                 </div>
                             ) : (
@@ -352,13 +345,13 @@ export function RightSidebar() {
                                         className={`history-item ${selectedRunId === run.id ? "active" : ""}`}
                                         onClick={() => enterHistoryMode(run.id)}
                                     >
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                        <div className="flex justify-between items-center mb-1.5">
                                             <StatusBadge status={run.status} />
-                                            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                                            <span className="text-xs text-muted">
                                                 {formatTime(run.startedAt)}
                                             </span>
                                         </div>
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-secondary)" }}>
+                                        <div className="flex justify-between text-xs text-secondary">
                                             <span>{run.scope === "full" ? "Full Run" : "Single Node"}</span>
                                             <span>{formatDuration(run.duration)}</span>
                                         </div>
