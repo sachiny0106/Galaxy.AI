@@ -109,13 +109,14 @@ export const NODE_HANDLE_TYPES: Record<NodeTypeValue, { inputs: HandleTypeValue[
 export type RunStatus = "pending" | "running" | "success" | "failed";
 
 export interface NodeExecution {
-    id: string;
     nodeId: string;
     nodeType: string;
     status: RunStatus;
     inputs: Record<string, unknown> | null;
     outputs: Record<string, unknown> | null;
     error: string | null;
+    startedAt: Date | null;
+    completedAt: Date | null;
     duration: number | null;
 }
 

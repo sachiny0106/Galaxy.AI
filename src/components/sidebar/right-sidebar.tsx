@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { History, ChevronLeft, ChevronRight, X, Play } from "lucide-react";
+import { History, ChevronLeft, ChevronRight, X, Play, Check, XCircle, Clock, ChevronDown, ChevronUp, Save } from "lucide-react";
 import { useHistoryStore } from "@/store/history-store";
 import { useWorkflowStore } from "@/store/workflow-store";
-import { RunStatus, WorkflowRun } from "@/types/workflow";
+import { RunStatus, WorkflowRun, NodeExecution } from "@/types/workflow";
 import { runWorkflow, ExecutionContext } from "@/lib/execution-engine";
 
 function formatDuration(ms: number | null): string {
@@ -20,7 +20,7 @@ function formatTime(date: Date): string {
     }).format(date);
 }
 
-function StatusBadge({status}: {status: RunStatus}) {
+function StatusBadge({ status }: { status: RunStatus }) {
     const cls = {
         pending: "badge-pending",
         running: "badge-warning",
@@ -29,6 +29,99 @@ function StatusBadge({status}: {status: RunStatus}) {
     }[status];
 
     return <span className={`badge ${cls}`}>{status}</span>;
+}
+
+function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
+    const [expanded, setExpanded] = useState(false);
+    const StatusIcon = execution.status === "success" ? Check
+        : execution.status === "failed" ? XCircle
+            : Clock;
+
+    return (
+        <div
+            style={{
+                padding: "6px 8px",
+                background: "rgba(0,0,0,0.2)",
+                borderRadius: 4,
+                marginBottom: 4,
+                fontSize: 11,
+            }}
+        >
+            <div
+                onClick={() => setExpanded(!expanded)}
+                style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+            >
+                <StatusIcon
+                    size={12}
+                    style={{
+                        color: execution.status === "success" ? "var(--success)"
+                            : execution.status === "failed" ? "var(--error)"
+                                : "var(--text-muted)",
+                    }}
+                />
+                <span style={{ flex: 1, color: "var(--text-secondary)" }}>
+                    {execution.nodeType} ({execution.nodeId})
+                </span>
+                <span style={{ color: "var(--text-muted)" }}>
+                    {formatDuration(execution.duration)}
+                </span>
+                {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </div>
+
+            {expanded && (
+                <div style={{ marginTop: 6, paddingLeft: 18, color: "var(--text-muted)" }}>
+                    {execution.error && (
+                        <div style={{ color: "var(--error)", marginBottom: 4 }}>
+                            Error: {execution.error}
+                        </div>
+                    )}
+                    {execution.outputs && (
+                        <div style={{ marginBottom: 4 }}>
+                            <strong>Output:</strong>
+                            <pre style={{
+                                fontSize: 10,
+                                maxHeight: 60,
+                                overflow: "auto",
+                                background: "rgba(0,0,0,0.3)",
+                                padding: 4,
+                                borderRadius: 2,
+                                marginTop: 2,
+                            }}>
+                                {JSON.stringify(execution.outputs, null, 2).substring(0, 200)}
+                            </pre>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function RunDetailView({ run }: { run: WorkflowRun }) {
+    return (
+        <div style={{ padding: 12 }}>
+            <div style={{ marginBottom: 12 }}>
+                <StatusBadge status={run.status} />
+                <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>
+                    {formatTime(run.startedAt)} • {formatDuration(run.duration)}
+                </span>
+            </div>
+
+            <div style={{ fontSize: 12, marginBottom: 8, fontWeight: 500 }}>
+                Node Executions
+            </div>
+
+            {run.nodeExecutions.length === 0 ? (
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    No node execution details available
+                </div>
+            ) : (
+                run.nodeExecutions.map((exec) => (
+                    <NodeExecutionItem key={exec.nodeId} execution={exec} />
+                ))
+            )}
+        </div>
+    );
 }
 
 export function RightSidebar() {
@@ -48,11 +141,36 @@ export function RightSidebar() {
     const setNodeExecuting = useWorkflowStore((s) => s.setNodeExecuting);
     const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
 
+    const selectedRun = runs.find((r) => r.id === selectedRunId);
+
+    const handleSaveWorkflow = async () => {
+        try {
+            const response = await fetch("/api/workflows", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: `Workflow ${new Date().toLocaleString()}`,
+                    nodes,
+                    edges,
+                }),
+            });
+            if (response.ok) {
+                alert("Workflow saved!");
+            } else {
+                const data = await response.json();
+                alert(data.error || "Failed to save");
+            }
+        } catch (e) {
+            alert("Failed to save workflow");
+        }
+    };
+
     const handleRunWorkflow = async () => {
         if (nodes.length === 0) return;
 
         const runId = `run-${Date.now()}`;
         const startTime = Date.now();
+        const nodeExecutions: NodeExecution[] = [];
 
         const newRun: WorkflowRun = {
             id: runId,
@@ -71,9 +189,28 @@ export function RightSidebar() {
             nodeOutputs: new Map(),
             onNodeStart: (nodeId) => {
                 setNodeExecuting(nodeId, true);
+                const node = nodes.find((n) => n.id === nodeId);
+                nodeExecutions.push({
+                    nodeId,
+                    nodeType: node?.type || "unknown",
+                    status: "running",
+                    startedAt: new Date(),
+                    completedAt: null,
+                    duration: null,
+                    inputs: null,
+                    outputs: null,
+                    error: null,
+                });
             },
             onNodeComplete: (nodeId, outputs) => {
                 setNodeExecuting(nodeId, false);
+                const exec = nodeExecutions.find((e) => e.nodeId === nodeId);
+                if (exec) {
+                    exec.status = "success";
+                    exec.completedAt = new Date();
+                    exec.duration = Date.now() - (exec.startedAt?.getTime() || 0);
+                    exec.outputs = outputs;
+                }
                 // Update node with output if it's an LLM node
                 const node = nodes.find((n) => n.id === nodeId);
                 if (node?.type === "llm" && outputs.text) {
@@ -82,6 +219,13 @@ export function RightSidebar() {
             },
             onNodeError: (nodeId, error) => {
                 setNodeExecuting(nodeId, false);
+                const exec = nodeExecutions.find((e) => e.nodeId === nodeId);
+                if (exec) {
+                    exec.status = "failed";
+                    exec.error = error;
+                    exec.completedAt = new Date();
+                    exec.duration = Date.now() - (exec.startedAt?.getTime() || 0);
+                }
                 console.error(`Node ${nodeId} error:`, error);
             },
         };
@@ -92,12 +236,14 @@ export function RightSidebar() {
                 status: "success",
                 completedAt: new Date(),
                 duration: Date.now() - startTime,
+                nodeExecutions,
             });
         } catch (error) {
             updateRun(runId, {
                 status: "failed",
                 completedAt: new Date(),
                 duration: Date.now() - startTime,
+                nodeExecutions,
             });
         } finally {
             setExecuting(false);
@@ -132,13 +278,13 @@ export function RightSidebar() {
 
             {!collapsed && (
                 <>
-                    {/* Run Button */}
-                    <div style={{ padding: 12, borderBottom: "1px solid var(--border)" }}>
+                    {/* Action Buttons */}
+                    <div style={{ padding: 12, borderBottom: "1px solid var(--border)", display: "flex", gap: 8 }}>
                         <button
                             className="btn btn-primary"
                             onClick={handleRunWorkflow}
                             disabled={isExecuting || nodes.length === 0}
-                            style={{ width: "100%" }}
+                            style={{ flex: 1 }}
                         >
                             {isExecuting ? (
                                 <>
@@ -152,64 +298,75 @@ export function RightSidebar() {
                                 </>
                             )}
                         </button>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={handleSaveWorkflow}
+                            title="Save Workflow"
+                            style={{ padding: "8px 12px" }}
+                        >
+                            <Save size={16} />
+                        </button>
                     </div>
 
-                    {/* History Mode Banner */}
-                    {isHistoryMode && (
-                        <div
-                            style={{
-                                padding: "8px 12px",
-                                background: "rgba(139, 92, 246, 0.2)",
-                                borderBottom: "1px solid var(--border)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                fontSize: 12,
-                            }}
-                        >
-                            <span>Viewing History</span>
-                            <button
-                                onClick={exitHistoryMode}
+                    {/* History Mode - Detail View */}
+                    {isHistoryMode && selectedRun ? (
+                        <>
+                            <div
                                 style={{
-                                    background: "none",
-                                    border: "none",
-                                    color: "var(--accent)",
-                                    cursor: "pointer",
+                                    padding: "8px 12px",
+                                    background: "rgba(139, 92, 246, 0.2)",
+                                    borderBottom: "1px solid var(--border)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    fontSize: 12,
                                 }}
                             >
-                                <X size={14} />
-                            </button>
+                                <span>Run Details</span>
+                                <button
+                                    onClick={exitHistoryMode}
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        color: "var(--accent)",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                            <RunDetailView run={selectedRun} />
+                        </>
+                    ) : (
+                        /* Runs List */
+                        <div className="sidebar-content" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {runs.length === 0 ? (
+                                <div style={{ textAlign: "center", color: "var(--text-muted)", padding: 20, fontSize: 13 }}>
+                                    <History size={32} style={{ opacity: 0.5, marginBottom: 8 }} />
+                                    <p>No runs yet</p>
+                                </div>
+                            ) : (
+                                runs.map((run) => (
+                                    <div
+                                        key={run.id}
+                                        className={`history-item ${selectedRunId === run.id ? "active" : ""}`}
+                                        onClick={() => enterHistoryMode(run.id)}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                            <StatusBadge status={run.status} />
+                                            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                                                {formatTime(run.startedAt)}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-secondary)" }}>
+                                            <span>{run.scope === "full" ? "Full Run" : "Single Node"}</span>
+                                            <span>{formatDuration(run.duration)}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     )}
-
-                    {/* Runs List */}
-                    <div className="sidebar-content" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {runs.length === 0 ? (
-                            <div style={{ textAlign: "center", color: "var(--text-muted)", padding: 20, fontSize: 13 }}>
-                                <History size={32} style={{ opacity: 0.5, marginBottom: 8 }} />
-                                <p>No runs yet</p>
-                            </div>
-                        ) : (
-                            runs.map((run) => (
-                                <div
-                                    key={run.id}
-                                    className={`history-item ${selectedRunId === run.id ? "active" : ""}`}
-                                    onClick={() => enterHistoryMode(run.id)}
-                                >
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                                        <StatusBadge status={run.status} />
-                                        <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                                            {formatTime(run.startedAt)}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-secondary)" }}>
-                                        <span>{run.scope === "full" ? "Full Run" : "Single Node"}</span>
-                                        <span>{formatDuration(run.duration)}</span>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
                 </>
             )}
         </div>
