@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.8",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6.19.2",
     "@xyflow/react": "^12.10.0",
     "clsx": "^2.1.1",
