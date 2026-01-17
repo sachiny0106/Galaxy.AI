@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { WorkflowCanvas } from "@/components/canvas";
 import { LeftSidebar, RightSidebar } from "@/components/sidebar";
+import { Toolbar } from "@/components/toolbar";
 import { useWorkflowStore } from "@/store/workflow-store";
 import { createSampleWorkflow } from "@/lib/sample-workflow";
 
@@ -13,7 +14,6 @@ function WorkflowEditor() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // Load sample workflow on first render if no nodes exist
     if (!initialized && nodes.length === 0) {
       const sample = createSampleWorkflow();
       setNodes(sample.nodes);
@@ -26,6 +26,7 @@ function WorkflowEditor() {
     <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <LeftSidebar />
       <main style={{ flex: 1, position: "relative" }}>
+        <Toolbar />
         <WorkflowCanvas />
       </main>
       <RightSidebar />

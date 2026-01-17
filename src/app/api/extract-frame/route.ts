@@ -1,19 +1,29 @@
 import { NextResponse } from "next/server";
+import { extractFrameSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { videoUrl, timestamp } = body;
 
-        // For demo purposes, return a placeholder
-        // In production, use Trigger.dev + FFmpeg to extract frame
+        // Validate with Zod
+        const result = extractFrameSchema.safeParse(body);
+        if (!result.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: result.error.flatten() },
+                { status: 400 }
+            );
+        }
 
-        // Simulate processing delay
-        await new Promise((r) => setTimeout(r, 500));
+        const { videoUrl, timestamp } = result.data;
+
+        // TODO: In production, run FFmpeg via Trigger.dev
+        // For now, return placeholder
+        await new Promise((r) => setTimeout(r, 800));
 
         return NextResponse.json({
             imageUrl: videoUrl, // In real impl, this would be the extracted frame
-            message: `Extracted frame at ${timestamp}s`
+            timestamp: timestamp,
+            message: `Frame extracted at ${timestamp}${typeof timestamp === 'string' && timestamp.includes('%') ? '' : 's'}`
         });
     } catch (error) {
         console.error("Extract frame API error:", error);

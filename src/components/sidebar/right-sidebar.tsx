@@ -20,7 +20,7 @@ function formatTime(date: Date): string {
     }).format(date);
 }
 
-function StatusBadge({ status }: { status: RunStatus }) {
+function StatusBadge({status}: {status: RunStatus}) {
     const cls = {
         pending: "badge-pending",
         running: "badge-warning",

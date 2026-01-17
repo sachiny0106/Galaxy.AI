@@ -80,7 +80,7 @@ const createNodeDefaults = (type: NodeTypeValue): WorkflowNodeData => {
     }
 };
 
-let nodeIdCounter = 1;
+let nodeIdCounter = 100;
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     nodes: [],
@@ -89,7 +89,17 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     executingNodes: new Set(),
     isExecuting: false,
 
-    setNodes: (nodes) => set({ nodes }),
+    setNodes: (nodes) => {
+        // Sync the counter to avoid duplicate IDs
+        const maxId = nodes.reduce((max, n) => {
+            const match = n.id.match(/node-(\d+)/);
+            return match ? Math.max(max, parseInt(match[1], 10)) : max;
+        }, 0);
+        if (maxId >= nodeIdCounter) {
+            nodeIdCounter = maxId + 1;
+        }
+        set({ nodes });
+    },
     setEdges: (edges) => set({ edges }),
 
     onNodesChange: (changes) => {

@@ -198,3 +198,35 @@ export async function runWorkflow(
 
     return true;
 }
+
+// Run only selected nodes (with their upstream dependencies)
+export async function runSelectedNodes(
+    nodes: WorkflowNode[],
+    edges: WorkflowEdge[],
+    selectedIds: string[],
+    context: ExecutionContext
+): Promise<boolean> {
+    // Get all upstream dependencies for selected nodes
+    const nodesToRun = new Set<string>(selectedIds);
+
+    function addUpstream(nodeId: string) {
+        edges.forEach((e) => {
+            if (e.target === nodeId && !nodesToRun.has(e.source)) {
+                nodesToRun.add(e.source);
+                addUpstream(e.source);
+            }
+        });
+    }
+
+    selectedIds.forEach(addUpstream);
+
+    // Filter nodes and edges to only include relevant ones
+    const filteredNodes = nodes.filter((n) => nodesToRun.has(n.id));
+    const filteredEdges = edges.filter(
+        (e) => nodesToRun.has(e.source) && nodesToRun.has(e.target)
+    );
+
+    // Run with the filtered graph
+    return runWorkflow(filteredNodes, filteredEdges, context);
+}
+
