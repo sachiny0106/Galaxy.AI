@@ -72,125 +72,137 @@ const DEFAULT_NODE_DATA: Record<NodeTypeValue, () => WorkflowNodeData> = {
 
 let nodeIdCounter = 100;
 
-export const useWorkflowStore = create<WorkflowState>((set, get) => ({
-    nodes: [],
-    edges: [],
-    selectedNodeId: null,
-    executingNodes: new Set(),
-    isExecuting: false,
+import { temporal } from "zundo";
 
-    setNodes: (nodes) => {
-        // simple max id check
-        const maxId = nodes.reduce((max, n) => {
-            const id = parseInt(n.id.replace("node-", "") || "0");
-            return Math.max(max, id);
-        }, 0);
-
-        if (maxId >= nodeIdCounter) nodeIdCounter = maxId + 1;
-        set({ nodes });
-    },
-    setEdges: (edges) => set({ edges }),
-
-    onNodesChange: (changes) => {
-        set({ nodes: applyNodeChanges(changes, get().nodes) as WorkflowNode[] });
-    },
-
-    onEdgesChange: (changes) => {
-        set({ edges: applyEdgeChanges(changes, get().edges) });
-    },
-
-    onConnect: (connection) => {
-        const { source, target, sourceHandle, targetHandle } = connection;
-        if (!source || !target || !sourceHandle || !targetHandle) return false;
-
-        if (!get().validateConnection(source, target, sourceHandle, targetHandle)) {
-            return false;
-        }
-
-        if (wouldCreateCycle(get().nodes, get().edges, source, target)) {
-            return false;
-        }
-
-        set({ edges: addEdge(connection, get().edges) });
-        return true;
-    },
-
-    addNode: (type, position) => {
-        const id = `node-${nodeIdCounter++}`;
-        const data = (DEFAULT_NODE_DATA[type] ? DEFAULT_NODE_DATA[type]() : { label: "Unknown", text: "" }) as WorkflowNodeData;
-
-        set({
-            nodes: [...get().nodes, { id, type, position, data }]
-        });
-    },
-
-    updateNodeData: (nodeId, data) => {
-        set({
-            nodes: get().nodes.map((node) =>
-                node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node
-            ),
-        });
-    },
-
-    deleteNode: (nodeId) => {
-        set({
-            nodes: get().nodes.filter((n) => n.id !== nodeId),
-            edges: get().edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
-            selectedNodeId: get().selectedNodeId === nodeId ? null : get().selectedNodeId,
-        });
-    },
-
-    selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
-
-    setExecuting: (isExecuting) => set({ isExecuting }),
-
-    setNodeExecuting: (nodeId, executing) => {
-        const newSet = new Set(get().executingNodes);
-        if (executing) {
-            newSet.add(nodeId);
-        } else {
-            newSet.delete(nodeId);
-        }
-        set({ executingNodes: newSet });
-    },
-
-    getConnectedInputs: (nodeId) => {
-        const connected = new Map<string, string>();
-        get().edges.forEach((edge) => {
-            if (edge.target === nodeId && edge.targetHandle) {
-                connected.set(edge.targetHandle, edge.source);
-            }
-        });
-        return connected;
-    },
-
-    validateConnection: (source, target, sourceHandle, targetHandle) => {
-        const sourceNode = get().nodes.find((n) => n.id === source);
-        const targetNode = get().nodes.find((n) => n.id === target);
-        if (!sourceNode || !targetNode) return false;
-
-        const sourceType = sourceNode.type as NodeTypeValue;
-        const targetType = targetNode.type as NodeTypeValue;
-
-        const sourceHandleType = getHandleType(sourceType, sourceHandle, "output");
-        const targetHandleType = getHandleType(targetType, targetHandle, "input");
-
-        if (!sourceHandleType || !targetHandleType) return false;
-
-        return sourceHandleType === targetHandleType;
-    },
-
-    reset: () => {
-        set({
+export const useWorkflowStore = create<WorkflowState>()(
+    temporal(
+        (set, get) => ({
             nodes: [],
             edges: [],
             selectedNodeId: null,
             executingNodes: new Set(),
             isExecuting: false,
-        });
-        nodeIdCounter = 1;
-    },
-}));
+
+            setNodes: (nodes) => {
+                // simple max id check
+                const maxId = nodes.reduce((max, n) => {
+                    const id = parseInt(n.id.replace("node-", "") || "0");
+                    return Math.max(max, id);
+                }, 0);
+
+                if (maxId >= nodeIdCounter) nodeIdCounter = maxId + 1;
+                set({ nodes });
+            },
+            setEdges: (edges) => set({ edges }),
+
+            onNodesChange: (changes) => {
+                set({ nodes: applyNodeChanges(changes, get().nodes) as WorkflowNode[] });
+            },
+
+            onEdgesChange: (changes) => {
+                set({ edges: applyEdgeChanges(changes, get().edges) });
+            },
+
+            onConnect: (connection) => {
+                const { source, target, sourceHandle, targetHandle } = connection;
+                if (!source || !target || !sourceHandle || !targetHandle) return false;
+
+                if (!get().validateConnection(source, target, sourceHandle, targetHandle)) {
+                    return false;
+                }
+
+                if (wouldCreateCycle(get().nodes, get().edges, source, target)) {
+                    return false;
+                }
+
+                set({ edges: addEdge(connection, get().edges) });
+                return true;
+            },
+
+            addNode: (type, position) => {
+                const id = `node-${nodeIdCounter++}`;
+                const data = (DEFAULT_NODE_DATA[type] ? DEFAULT_NODE_DATA[type]() : { label: "Unknown", text: "" }) as WorkflowNodeData;
+
+                set({
+                    nodes: [...get().nodes, { id, type, position, data }]
+                });
+            },
+
+            updateNodeData: (nodeId, data) => {
+                set({
+                    nodes: get().nodes.map((node) =>
+                        node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node
+                    ),
+                });
+            },
+
+            deleteNode: (nodeId) => {
+                set({
+                    nodes: get().nodes.filter((n) => n.id !== nodeId),
+                    edges: get().edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+                    selectedNodeId: get().selectedNodeId === nodeId ? null : get().selectedNodeId,
+                });
+            },
+
+            selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
+
+            setExecuting: (isExecuting) => set({ isExecuting }),
+
+            setNodeExecuting: (nodeId, executing) => {
+                const newSet = new Set(get().executingNodes);
+                if (executing) {
+                    newSet.add(nodeId);
+                } else {
+                    newSet.delete(nodeId);
+                }
+                set({ executingNodes: newSet });
+            },
+
+            getConnectedInputs: (nodeId) => {
+                const connected = new Map<string, string>();
+                get().edges.forEach((edge) => {
+                    if (edge.target === nodeId && edge.targetHandle) {
+                        connected.set(edge.targetHandle, edge.source);
+                    }
+                });
+                return connected;
+            },
+
+            validateConnection: (source, target, sourceHandle, targetHandle) => {
+                const sourceNode = get().nodes.find((n) => n.id === source);
+                const targetNode = get().nodes.find((n) => n.id === target);
+                if (!sourceNode || !targetNode) return false;
+
+                const sourceType = sourceNode.type as NodeTypeValue;
+                const targetType = targetNode.type as NodeTypeValue;
+
+                const sourceHandleType = getHandleType(sourceType, sourceHandle, "output");
+                const targetHandleType = getHandleType(targetType, targetHandle, "input");
+
+                if (!sourceHandleType || !targetHandleType) return false;
+
+                return sourceHandleType === targetHandleType;
+            },
+
+            reset: () => {
+                set({
+                    nodes: [],
+                    edges: [],
+                    selectedNodeId: null,
+                    executingNodes: new Set(),
+                    isExecuting: false,
+                });
+                nodeIdCounter = 1;
+            },
+        }),
+        {
+            partialize: (state) => ({
+                nodes: state.nodes,
+                edges: state.edges,
+            }),
+        }
+    )
+);
 
 function getHandleType(nodeType: NodeTypeValue, handleId: string, direction: "input" | "output"): HandleTypeValue | null {
     const config = NODE_HANDLE_TYPES[nodeType];

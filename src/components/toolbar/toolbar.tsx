@@ -6,6 +6,8 @@ import {
     Play,
     PlayCircle,
     Trash2,
+    Undo,
+    Redo,
 } from "lucide-react";
 import { useWorkflowStore } from "@/store/workflow-store";
 import { useHistoryStore } from "@/store/history-store";
@@ -205,6 +207,32 @@ export function Toolbar() {
                 style={{ padding: "6px 10px" }}
             >
                 <Trash2 size={16} />
+            </button>
+
+            <div style={{ width: 1, background: "var(--border)", margin: "0 4px" }} />
+
+            <button
+                className="btn btn-secondary"
+                onClick={() => {
+                    const { undo, pastStates } = useWorkflowStore.temporal.getState();
+                    if (pastStates.length > 0) undo();
+                }}
+                title="Undo"
+                style={{ padding: "6px 10px" }}
+            >
+                <Undo size={16} />
+            </button>
+
+            <button
+                className="btn btn-secondary"
+                onClick={() => {
+                    const { redo, futureStates } = useWorkflowStore.temporal.getState();
+                    if (futureStates.length > 0) redo();
+                }}
+                title="Redo"
+                style={{ padding: "6px 10px" }}
+            >
+                <Redo size={16} />
             </button>
 
             <div style={{ width: 1, background: "var(--border)", margin: "0 4px" }} />
