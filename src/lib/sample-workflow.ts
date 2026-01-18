@@ -23,7 +23,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
                 yPercent: 10,
                 widthPercent: 80,
                 heightPercent: 80,
-                imageUrl: ""
+                imageUrl: "",
+                outputUrl: null
             },
         },
         {
@@ -53,7 +54,9 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
                 model: "gemini-2.0-flash",
                 systemPrompt: "",
                 userMessage: "",
-                images: []
+                images: [],
+                response: null,
+                isLoading: false
             },
         },
 
@@ -75,7 +78,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             data: {
                 label: "Extract Hero Frame",
                 timestamp: 5,
-                videoUrl: ""
+                videoUrl: "",
+                outputUrl: null
             },
         },
 
@@ -98,7 +102,9 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
                 model: "gemini-2.0-flash",
                 systemPrompt: "",
                 userMessage: "",
-                images: []
+                images: [],
+                response: null,
+                isLoading: false
             },
         },
     ],
