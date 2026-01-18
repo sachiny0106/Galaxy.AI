@@ -19,7 +19,6 @@ export async function POST(req: Request) {
 
         const { model, systemPrompt, userMessage, images } = result.data;
 
-        // Check if API key is configured
         if (!process.env.GEMINI_API_KEY) {
             return NextResponse.json(
                 { error: "Gemini API key not configured" },
@@ -27,26 +26,18 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get the model - use gemini-2.0-flash as the default
         const geminiModel = genAI.getGenerativeModel({ model: model || "gemini-2.0-flash" });
-
-        // Build the prompt
         const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
-        // Add system prompt if provided
         if (systemPrompt) {
             parts.push({ text: `System: ${systemPrompt}\n\n` });
         }
 
-        // Add user message
         parts.push({ text: userMessage });
 
-        // Add images if provided (base64 or URLs converted to base64)
-        if (images && images.length > 0) {
+        if (images?.length) {
             for (const imageUrl of images) {
                 try {
-                    // For now, skip image processing - would need to fetch and convert to base64
-                    // In production, handle image URLs properly
                     parts.push({ text: `[Image attached: ${imageUrl}]` });
                 } catch (e) {
                     console.warn("Failed to process image:", e);
@@ -54,7 +45,6 @@ export async function POST(req: Request) {
             }
         }
 
-        // Generate content
         const response = await geminiModel.generateContent(parts);
         const text = response.response.text();
 

@@ -2,24 +2,42 @@
 
 /* Custom Properties */
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a25;
-  --surface: rgba(20, 20, 30, 0.8);
-  --surface-light: rgba(40, 40, 60, 0.6);
-  --border: rgba(80, 80, 120, 0.3);
-  --border-light: rgba(120, 120, 160, 0.2);
-  --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b0;
-  --text-muted: #606070;
-  --accent: #8b5cf6;
-  --accent-light: #a78bfa;
-  --accent-glow: rgba(139, 92, 246, 0.4);
+  /* Weavy Design System Colors */
+  --bg-primary: #0a0a0a;
+  /* Deep Matte Black */
+  --bg-secondary: #09090b;
+  /* Zinc 950 */
+  --surface: rgba(9, 9, 11, 0.8);
+  /* Zinc 950 / 80% opacity */
+  --surface-light: rgba(24, 24, 27, 0.6);
+  /* Zinc 900 / 60% opacity */
+
+  --border: rgba(255, 255, 255, 0.05);
+  /* White / 5% opacity for panels */
+  --border-light: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #f4f4f5;
+  /* Zinc 100 */
+  --text-secondary: #a1a1aa;
+  /* Zinc 400 */
+  --text-muted: #71717a;
+  /* Zinc 500 */
+
+  --accent: #7c3aed;
+  /* Violet 600 - Primary Brand */
+  --accent-light: #8b5cf6;
+  /* Violet 500 */
+  --accent-glow: rgba(124, 58, 237, 0.6);
+  /* Violet Glow Spec */
+
   --success: #22c55e;
   --error: #ef4444;
   --warning: #eab308;
-  --node-bg: rgba(20, 20, 30, 0.95);
-  --node-border: rgba(139, 92, 246, 0.3);
+
+  --node-bg: #18181b;
+  /* Zinc 900 */
+  --node-border: #27272a;
+  /* Zinc 800 */
 }
 
 /* Base Styles */
@@ -29,7 +47,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
@@ -42,29 +61,41 @@ body {
 
 /* Glassmorphism Utilities */
 .glass {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
+  background: rgba(9, 9, 11, 0.6);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .glass-light {
   background: var(--surface-light);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-light);
 }
 
 /* Pulsating Glow Animation */
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px var(--accent-glow), 0 0 30px var(--accent-glow);
+
+  0%,
+  100% {
+    box-shadow: 0 0 30px -5px rgba(124, 58, 237, 0.6);
   }
+
   50% {
-    box-shadow: 0 0 25px var(--accent-glow), 0 0 50px var(--accent-glow);
+    box-shadow: 0 0 45px -5px rgba(124, 58, 237, 0.8);
   }
 }
 
 .pulse-glow {
-  animation: pulse-glow 1.5s ease-in-out infinite;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Custom Dot Grid Pattern */
+.dot-grid {
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(#3f3f46 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.15;
 }
 
 /* Animated Edge Flow */
@@ -72,6 +103,7 @@ body {
   from {
     stroke-dashoffset: 24;
   }
+
   to {
     stroke-dashoffset: 0;
   }
@@ -82,30 +114,12 @@ body {
   animation: edge-flow 0.5s linear infinite;
 }
 
-/* Node Styles */
+/* Node Styles - Base styles only, animations handled by Framer Motion */
 .workflow-node {
-  background: var(--node-bg);
-  border: 1px solid var(--node-border);
-  border-radius: 12px;
-  padding: 16px;
-  min-width: 240px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  transition: border-color 0.2s, transform 0.2s;
+  /* Motion handles transform/border/shadow */
 }
 
-.workflow-node:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-
-.workflow-node.selected {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
-}
-
-.workflow-node.executing {
-  animation: pulse-glow 1.5s ease-in-out infinite;
-}
+/* Removed hover/selected CSS to avoid conflict with Motion */
 
 .node-header {
   display: flex;

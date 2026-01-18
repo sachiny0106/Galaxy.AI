@@ -46,7 +46,7 @@ const DEFAULT_NODE_DATA: Record<NodeTypeValue, () => WorkflowNodeData> = {
     [NodeType.UPLOAD_VIDEO]: () => ({ label: "Upload Video", videoUrl: null, fileName: null }),
     [NodeType.LLM]: () => ({
         label: "Run LLM",
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash",
         systemPrompt: "",
         userMessage: "",
         images: [],

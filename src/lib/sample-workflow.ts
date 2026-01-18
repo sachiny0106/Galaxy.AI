@@ -40,7 +40,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             position: { x: 650, y: 80 },
             data: {
                 label: "Generate Description",
-                model: "gemini-1.5-flash",
+                model: "gemini-2.0-flash",
                 systemPrompt: "",
                 userMessage: "",
                 images: [],
@@ -76,7 +76,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             position: { x: 950, y: 200 },
             data: {
                 label: "Generate Social Post",
-                model: "gemini-1.5-flash",
+                model: "gemini-2.0-flash",
                 systemPrompt: "You are a creative social media manager.",
                 userMessage: "",
                 images: [],

@@ -16,8 +16,7 @@ export async function POST(req: Request) {
 
         const { videoUrl, timestamp } = result.data;
 
-        // TODO: In production, run FFmpeg via Trigger.dev
-        // For now, return placeholder
+        // Mock implementation for prototype
         await new Promise((r) => setTimeout(r, 800));
 
         return NextResponse.json({

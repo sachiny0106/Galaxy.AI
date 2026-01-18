@@ -33,7 +33,7 @@ export const llmTask = task({
     },
 });
 
-// Crop Image Task - Uses FFmpeg
+// Crop Image Task - Uses FFmpeg (Mock for now)
 export const cropImageTask = task({
     id: "crop-image-ffmpeg",
     maxDuration: 60,
@@ -44,13 +44,6 @@ export const cropImageTask = task({
         widthPercent: number;
         heightPercent: number;
     }) => {
-        // In production, this would:
-        // 1. Download the image
-        // 2. Run FFmpeg to crop: ffmpeg -i input.jpg -vf "crop=w:h:x:y" output.jpg
-        // 3. Upload to storage
-        // 4. Return the new URL
-
-        // For now, return mock result
         return {
             imageUrl: payload.imageUrl,
             cropApplied: {
@@ -64,7 +57,7 @@ export const cropImageTask = task({
     },
 });
 
-// Extract Frame Task - Uses FFmpeg
+// Extract Frame Task - Uses FFmpeg (Mock for now)
 export const extractFrameTask = task({
     id: "extract-frame-ffmpeg",
     maxDuration: 60,
@@ -72,13 +65,6 @@ export const extractFrameTask = task({
         videoUrl: string;
         timestamp: number | string;
     }) => {
-        // In production, this would:
-        // 1. Download the video
-        // 2. Run FFmpeg: ffmpeg -i video.mp4 -ss <timestamp> -vframes 1 frame.jpg
-        // 3. Upload frame to storage
-        // 4. Return the frame URL
-
-        // For now, return mock result
         const ts = typeof payload.timestamp === "string"
             ? payload.timestamp
             : `${payload.timestamp}s`;

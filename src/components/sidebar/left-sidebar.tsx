@@ -39,7 +39,14 @@ export function LeftSidebar() {
     };
 
     return (
-        <div className={`sidebar ${collapsed ? "collapsed" : ""}`} style={{ width: collapsed ? 60 : 240 }}>
+        <div
+            className={`sidebar glass ${collapsed ? "collapsed" : ""}`}
+            style={{
+                width: collapsed ? 60 : 260,
+                background: "var(--surface)", // Override default bg
+                backdropFilter: "blur(12px)",
+            }}
+        >
             <div className="sidebar-header">
                 {!collapsed && <span style={{ fontWeight: 600, fontSize: 14 }}>Nodes</span>}
                 <button

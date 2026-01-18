@@ -252,11 +252,13 @@ export function RightSidebar() {
 
     return (
         <div
-            className={`sidebar ${collapsed ? "collapsed" : ""}`}
+            className={`sidebar glass ${collapsed ? "collapsed" : ""}`}
             style={{
-                width: collapsed ? 60 : 280,
+                width: collapsed ? 60 : 300,
                 borderRight: "none",
                 borderLeft: "1px solid var(--border)",
+                background: "var(--surface)",
+                backdropFilter: "blur(12px)",
             }}
         >
             <div className="sidebar-header">

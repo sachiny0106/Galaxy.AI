@@ -99,9 +99,10 @@ export function WorkflowCanvas() {
             >
                 <Background
                     variant={BackgroundVariant.Dots}
-                    gap={20}
+                    gap={24}
                     size={1}
-                    color="rgba(100, 100, 140, 0.3)"
+                    color="#3f3f46"
+                    style={{ opacity: 0.2 }}
                 />
                 <Controls
                     position="bottom-left"
