@@ -57,14 +57,17 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { name, nodes, edges } = body;
 
-        if (!name || !nodes || !edges) {
+        // Validate with Zod
+        const result = workflowSchema.safeParse(body);
+        if (!result.success) {
             return NextResponse.json(
-                { error: "Missing required fields: name, nodes, edges" },
+                { error: "Validation failed", details: result.error.flatten() },
                 { status: 400 }
             );
         }
+
+        const { name, nodes, edges } = result.data;
 
         // Get or create user
         let user = await prisma.user.findUnique({

@@ -23,7 +23,7 @@ export type CropRequest = z.infer<typeof cropRequestSchema>;
 
 // Extract Frame Request Schema
 export const extractFrameSchema = z.object({
-    videoUrl: z.string().url("Valid video URL required"),
+    videoUrl: z.string().url(),
     timestamp: z.union([
         z.number().min(0),
         z.string().regex(/^\d+%?$/, "Timestamp must be number or percentage like '50%'"),

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { workflowSchema } from "@/lib/schemas";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -62,7 +63,17 @@ export async function PUT(req: Request, { params }: RouteParams) {
         }
 
         const body = await req.json();
-        const { name, nodes, edges } = body;
+
+        // Validate with Zod (partial for updates)
+        const result = workflowSchema.partial().safeParse(body);
+        if (!result.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: result.error.flatten() },
+                { status: 400 }
+            );
+        }
+
+        const { name, nodes, edges } = result.data;
 
         const user = await prisma.user.findUnique({
             where: { clerkId: userId },
