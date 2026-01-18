@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { tasks } from "@trigger.dev/sdk/v3";
 import { extractFrameSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
@@ -16,13 +17,31 @@ export async function POST(req: Request) {
 
         const { videoUrl, timestamp } = result.data;
 
-        // Mock implementation for prototype
-        await new Promise((r) => setTimeout(r, 800));
+        // Trigger the Extract Frame task
+        const handle = await tasks.trigger("extract-frame-ffmpeg", {
+            videoUrl,
+            timestamp,
+        });
+
+        // Short-polling loop to return result synchronously
+        const MAX_RETRIES = 15;
+        const DELAY = 400;
+
+        for (let i = 0; i < MAX_RETRIES; i++) {
+            const run = await tasks.retrieve(handle.id);
+            if (run.status === "COMPLETED" && run.output) {
+                return NextResponse.json(run.output);
+            }
+            if (run.status === "FAILED") {
+                throw new Error(run.error?.message || "Task failed");
+            }
+            await new Promise(r => setTimeout(r, DELAY));
+        }
 
         return NextResponse.json({
-            imageUrl: videoUrl, // In real impl, this would be the extracted frame
-            timestamp: timestamp,
-            message: `Frame extracted at ${timestamp}${typeof timestamp === 'string' && timestamp.includes('%') ? '' : 's'}`
+            imageUrl: videoUrl,
+            timestamp,
+            message: "Request queued (Trigger.dev). Check history for results."
         });
     } catch (error) {
         console.error("Extract frame API error:", error);

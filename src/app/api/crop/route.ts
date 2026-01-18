@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { tasks } from "@trigger.dev/sdk/v3";
 import { cropRequestSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
@@ -16,18 +17,33 @@ export async function POST(req: Request) {
 
         const { imageUrl, xPercent, yPercent, widthPercent, heightPercent } = result.data;
 
-        // Mock implementation for prototype
-        await new Promise((r) => setTimeout(r, 800));
+        // Trigger the Crop Image task
+        const handle = await tasks.trigger("crop-image-ffmpeg", {
+            imageUrl,
+            xPercent,
+            yPercent,
+            widthPercent,
+            heightPercent,
+        });
+
+        // Short-polling loop to return result synchronously
+        const MAX_RETRIES = 15;
+        const DELAY = 400;
+
+        for (let i = 0; i < MAX_RETRIES; i++) {
+            const run = await tasks.retrieve(handle.id);
+            if (run.status === "COMPLETED" && run.output) {
+                return NextResponse.json(run.output);
+            }
+            if (run.status === "FAILED") {
+                throw new Error(run.error?.message || "Task failed");
+            }
+            await new Promise(r => setTimeout(r, DELAY));
+        }
 
         return NextResponse.json({
-            imageUrl: imageUrl,
-            cropApplied: {
-                x: xPercent,
-                y: yPercent,
-                width: widthPercent,
-                height: heightPercent,
-            },
-            message: `Image cropped: x=${xPercent}%, y=${yPercent}%, w=${widthPercent}%, h=${heightPercent}%`
+            imageUrl,
+            message: "Request queued (Trigger.dev). Check history for results."
         });
     } catch (error) {
         console.error("Crop API error:", error);
