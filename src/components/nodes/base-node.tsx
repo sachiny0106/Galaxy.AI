@@ -39,12 +39,12 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
                 opacity: 1,
                 borderColor: selected ? "var(--accent)" : isExecuting ? "var(--accent)" : "var(--node-border)",
                 boxShadow: isExecuting
-                    ? "0 0 40px -5px rgba(124, 58, 237, 0.5)"
+                    ? "0 0 0 2px rgba(124, 58, 237, 0.4), 0 0 20px rgba(124, 58, 237, 0.2)"
                     : selected
                         ? "0 0 0 2px var(--accent-glow)"
-                        : "0 4px 20px rgba(0,0,0,0.2)"
+                        : "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
             }}
-            whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 15 } }}
+            whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", duration: 0.4 }}
             className="workflow-node relative min-w-[280px] bg-[#09090b] rounded-lg border border-zinc-800 shadow-xl"

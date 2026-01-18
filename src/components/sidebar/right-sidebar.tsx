@@ -35,51 +35,63 @@ function StatusBadge({ status }: { status: RunStatus }) {
     );
 }
 
-function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
-    const [expanded, setExpanded] = useState(false);
-    const StatusIcon = execution.status === "success" ? Check
-        : execution.status === "failed" ? XCircle
-            : Clock;
+function NodeExecutionItem({ execution, isLast }: { execution: NodeExecution, isLast: boolean }) {
+    const [expanded, setExpanded] = useState(true);
+    const StatusIcon = execution.status === "success" ? Check : execution.status === "failed" ? XCircle : Clock;
+
+    // Status text for the "terminal" look
+    const statusText = execution.status === "success" ? "Success" : execution.status === "failed" ? "Failed" : "Running";
+    const statusColor = execution.status === "success" ? "text-emerald-400" : execution.status === "failed" ? "text-red-400" : "text-amber-400";
 
     return (
-        <div className="bg-zinc-900/40 rounded border border-zinc-800/50 mb-1 text-[11px] overflow-hidden transition-colors hover:bg-zinc-900/60">
+        <div className="text-[11px] font-mono leading-relaxed relative ml-2">
+            {/* Main Node Line */}
             <div
+                className="flex items-center gap-2 cursor-pointer hover:bg-white/5 py-0.5 rounded"
                 onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-2 p-2 cursor-pointer select-none"
             >
-                <StatusIcon
-                    size={12}
-                    className={
-                        execution.status === "success" ? "text-emerald-400"
-                            : execution.status === "failed" ? "text-red-400"
-                                : "text-zinc-500"
-                    }
-                />
-                <span className="flex-1 text-zinc-300 font-medium truncate">
+                {/* Vertical Tree Line */}
+                <span className="text-zinc-700 select-none">
+                    {isLast ? "└" : "├"}──
+                </span>
+
+                <StatusIcon size={12} className={statusColor} />
+
+                <span className="font-semibold text-zinc-300">
                     {execution.nodeType.replace(/([A-Z])/g, ' $1').trim()}
-                    <span className="text-zinc-600 font-mono ml-1 text-[10px] opacity-70">({execution.nodeId})</span>
                 </span>
-                <span className="text-zinc-500 font-mono text-[10px]">
-                    {formatDuration(execution.duration)}
+
+                <span className="text-zinc-600">({execution.nodeId})</span>
+
+                <span className={`ml-auto mr-2 ${statusColor}`}>
+                    {statusText}
                 </span>
-                {expanded ? <ChevronUp size={12} className="text-zinc-600" /> : <ChevronDown size={12} className="text-zinc-600" />}
+
+                <span className="text-zinc-600">
+                    {dateToTime(execution.duration || 0)}s
+                </span>
             </div>
 
-            {expanded && (
-                <div className="px-2 pb-2 pl-6">
-                    {execution.error && (
-                        <div className="text-red-400 mb-2 bg-red-950/30 p-2 rounded text-[10px] leading-relaxed border border-red-900/50">
-                            Error: {execution.error}
+            {/* Child Output Line (Tree Branch) */}
+            {expanded && (execution.outputs || execution.error) && (
+                <div className="flex ml-[5px]">
+                    {/* Vertical Connector for children if parent isn't last, or spacing if it is */}
+                    <div className={`w-[19px] shrink-0 border-l ${isLast ? "border-transparent" : "border-zinc-800"}`}></div>
+
+                    <div className="flex-1 mt-0.5">
+                        <div className="flex items-start gap-2">
+                            <span className="text-zinc-700 select-none">└──</span>
+
+                            <div className="flex-1 min-w-0">
+                                <span className="text-zinc-500 uppercase tracking-wider text-[9px] mr-2">
+                                    {execution.error ? "Error" : "Output"}:
+                                </span>
+                                <span className={`break-words ${execution.error ? "text-red-400" : "text-zinc-400"} truncate block`}>
+                                    {execution.error || JSON.stringify(execution.outputs)}
+                                </span>
+                            </div>
                         </div>
-                    )}
-                    {execution.outputs && (
-                        <div className="relative group">
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1 block">Output</span>
-                            <pre className="text-[10px] bg-black/40 p-2 rounded text-zinc-400 overflow-x-auto max-h-32 font-mono scrollbar-thin">
-                                {JSON.stringify(execution.outputs, null, 2)}
-                            </pre>
-                        </div>
-                    )}
+                    </div>
                 </div>
             )}
         </div>
@@ -88,31 +100,27 @@ function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
 
 function RunDetailView({ run }: { run: WorkflowRun }) {
     return (
-        <div className="p-3">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
-                <StatusBadge status={run.status} />
-                <span className="text-[10px] text-zinc-500 font-medium">
-                    {formatTime(run.startedAt)} • {formatDuration(run.duration)}
-                </span>
+        <div className="p-3 font-mono">
+            <div className="mb-4 text-xs text-zinc-400 border-b border-zinc-900 pb-2">
+                Run #{run.id.split('-')[1].slice(-4)} - {formatTime(run.startedAt)}
+                <span className="text-zinc-600 ml-2">({run.scope === "full" ? "Full Workflow" : "Partial Run"})</span>
             </div>
 
-            <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">
-                Execution Steps
+            <div className="space-y-0">
+                {run.nodeExecutions.map((exec, index) => (
+                    <NodeExecutionItem
+                        key={exec.nodeId}
+                        execution={exec}
+                        isLast={index === run.nodeExecutions.length - 1}
+                    />
+                ))}
             </div>
-
-            {run.nodeExecutions.length === 0 ? (
-                <div className="text-xs text-zinc-600 italic px-1">
-                    No execution data recorded.
-                </div>
-            ) : (
-                <div className="space-y-1">
-                    {run.nodeExecutions.map((exec) => (
-                        <NodeExecutionItem key={exec.nodeId} execution={exec} />
-                    ))}
-                </div>
-            )}
         </div>
     );
+}
+
+function dateToTime(ms: number): string {
+    return (ms / 1000).toFixed(1);
 }
 
 export function RightSidebar() {
