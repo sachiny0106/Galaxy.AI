@@ -109,7 +109,7 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             id: "e1-3",
             source: "node-1",
             target: "node-3",
-            sourceHandle: "image_url-source",
+            sourceHandle: "image_url-0",
             targetHandle: "image_url-0",
             type: "animated",
             animated: true
@@ -127,8 +127,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             id: "e4-7-sys",
             source: "node-4",
             target: "node-7",
-            sourceHandle: "output-source",
-            targetHandle: "system_prompt-0",
+            sourceHandle: "text-0",
+            targetHandle: "systemPrompt-0",
             type: "animated",
             animated: true
         },
@@ -136,8 +136,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             id: "e5-7-user",
             source: "node-5",
             target: "node-7",
-            sourceHandle: "output-source",
-            targetHandle: "user_message-0",
+            sourceHandle: "text-0",
+            targetHandle: "userMessage-0",
             type: "animated",
             animated: true
         },
@@ -158,8 +158,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             id: "e7-9-user",
             source: "node-7",
             target: "node-9",
-            sourceHandle: "output-source",
-            targetHandle: "user_message-0", // Feed description as user message content
+            sourceHandle: "text-0",
+            targetHandle: "userMessage-0", // Feed description as user message content
             type: "animated",
             animated: true
         },
@@ -167,8 +167,8 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             id: "e8-9-sys",
             source: "node-8",
             target: "node-9",
-            sourceHandle: "output-source",
-            targetHandle: "system_prompt-0",
+            sourceHandle: "text-0",
+            targetHandle: "systemPrompt-0",
             type: "animated",
             animated: true
         },

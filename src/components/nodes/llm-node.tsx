@@ -25,8 +25,8 @@ function LlmNodeComponent({ id, data, selected }: NodeProps) {
     const [isRetrying, setIsRetrying] = useState(false);
 
     const connected = getConnectedInputs(id);
-    const systemPromptConnected = connected.has("text-0");
-    const userMessageConnected = connected.has("text-1");
+    const systemPromptConnected = connected.has("systemPrompt-0");
+    const userMessageConnected = connected.has("userMessage-0");
 
     const isError = nodeData.response?.includes("Error") || nodeData.response?.includes("Failed");
 
@@ -67,8 +67,8 @@ function LlmNodeComponent({ id, data, selected }: NodeProps) {
             icon={Brain}
             selected={selected}
             handles={[
-                { type: "target", position: Position.Left, id: "text-0", dataType: "text" }, // System
-                { type: "target", position: Position.Left, id: "text-1", dataType: "text" }, // User
+                { type: "target", position: Position.Left, id: "systemPrompt-0", dataType: "text" }, // System
+                { type: "target", position: Position.Left, id: "userMessage-0", dataType: "text" }, // User
                 { type: "target", position: Position.Left, id: "image_url-0", dataType: "image" }, // Images
                 { type: "source", position: Position.Right, id: "text-0", dataType: "text" }, // Response
             ]}

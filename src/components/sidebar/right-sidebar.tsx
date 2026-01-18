@@ -389,7 +389,9 @@ export function RightSidebar() {
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-[11px] text-zinc-400">
-                                            <span className="group-hover:text-zinc-200 transition-colors">Full Run</span>
+                                            <span className="group-hover:text-zinc-200 transition-colors">
+                                                {run.scope === "full" ? "Full Run" : "Partial Run"}
+                                            </span>
                                             <span className="font-mono text-zinc-600 group-hover:text-zinc-400">{formatDuration(run.duration)}</span>
                                         </div>
                                     </div>

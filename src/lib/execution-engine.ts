@@ -93,7 +93,7 @@ export async function executeNode(
                 model: inputs.model,
                 systemPrompt: inputs.systemPrompt || inputs.text,
                 userMessage: inputs.userMessage || inputs.text,
-                images: inputs.images || [],
+                images: Array.isArray(inputs.images) ? inputs.images : (inputs.images ? [inputs.images] : []),
             };
             break;
 
