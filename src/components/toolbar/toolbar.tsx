@@ -8,7 +8,9 @@ import {
     Trash2,
     Undo,
     Redo,
+    Maximize,
 } from "lucide-react";
+import { useReactFlow } from "@xyflow/react";
 import { useWorkflowStore } from "@/store/workflow-store";
 import { useHistoryStore } from "@/store/history-store";
 import { WorkflowRun, WorkflowNode, WorkflowEdge } from "@/types/workflow";
@@ -154,6 +156,8 @@ export function Toolbar() {
         }
     };
 
+    const { fitView } = useReactFlow();
+
     return (
         <div
             style={{
@@ -178,6 +182,17 @@ export function Toolbar() {
                 onChange={handleImport}
                 style={{ display: "none" }}
             />
+
+            <button
+                className="btn btn-secondary"
+                onClick={() => fitView({ padding: 0.2, duration: 500 })}
+                title="Fit View"
+                style={{ padding: "6px 10px" }}
+            >
+                <Maximize size={16} />
+            </button>
+
+            <div style={{ width: 1, background: "var(--border)", margin: "0 4px" }} />
 
             <button
                 className="btn btn-secondary"

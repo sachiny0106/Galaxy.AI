@@ -36,11 +36,11 @@ export function AnimatedEdge({
             <path
                 d={edgePath}
                 fill="none"
-                stroke="var(--accent-light)"
-                strokeWidth={2}
+                stroke="var(--accent)"
+                strokeWidth={3}
                 strokeDasharray="5 5"
                 className="animated-edge"
-                style={{ opacity: 0.8 }}
+                style={{ opacity: 1 }}
             />
         </>
     );

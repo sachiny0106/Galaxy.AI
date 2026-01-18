@@ -123,15 +123,13 @@ function dateToTime(ms: number): string {
     return (ms / 1000).toFixed(1);
 }
 
+import { useReactFlow } from "@xyflow/react";
+// ... imports
+
 export function RightSidebar() {
+    const { fitView } = useReactFlow();
     const [collapsed, setCollapsed] = useState(false);
-    const runs = useHistoryStore((s) => s.runs);
-    const selectedRunId = useHistoryStore((s) => s.selectedRunId);
-    const isHistoryMode = useHistoryStore((s) => s.isHistoryMode);
-    const enterHistoryMode = useHistoryStore((s) => s.enterHistoryMode);
-    const exitHistoryMode = useHistoryStore((s) => s.exitHistoryMode);
-    const addRun = useHistoryStore((s) => s.addRun);
-    const updateRun = useHistoryStore((s) => s.updateRun);
+    // ... existing hooks
 
     const nodes = useWorkflowStore((s) => s.nodes);
     const edges = useWorkflowStore((s) => s.edges);
@@ -139,6 +137,14 @@ export function RightSidebar() {
     const setExecuting = useWorkflowStore((s) => s.setExecuting);
     const setNodeExecuting = useWorkflowStore((s) => s.setNodeExecuting);
     const updateNodeData = useWorkflowStore((s) => s.updateNodeData);
+
+    const runs = useHistoryStore((s) => s.runs);
+    const selectedRunId = useHistoryStore((s) => s.selectedRunId);
+    const isHistoryMode = useHistoryStore((s) => s.isHistoryMode);
+    const addRun = useHistoryStore((s) => s.addRun);
+    const updateRun = useHistoryStore((s) => s.updateRun);
+    const enterHistoryMode = useHistoryStore((s) => s.enterHistoryMode);
+    const exitHistoryMode = useHistoryStore((s) => s.exitHistoryMode);
 
     const selectedRun = runs.find((r) => r.id === selectedRunId);
 
@@ -290,10 +296,11 @@ export function RightSidebar() {
                                 const { SAMPLE_WORKFLOW } = require("@/lib/sample-workflow");
                                 useWorkflowStore.getState().setNodes(SAMPLE_WORKFLOW.nodes);
                                 useWorkflowStore.getState().setEdges(SAMPLE_WORKFLOW.edges);
+                                setTimeout(() => fitView({ padding: 0.2, duration: 800 }), 100);
                             }}
                             title="Load Sample Workflow"
                         >
-                            <span className="text-[10px] font-mono">SAMPLE</span>
+                            <span className="text-[10px] font-mono">LOAD SAMPLE</span>
                         </button>
                         <button
                             className="btn btn-secondary px-3"
