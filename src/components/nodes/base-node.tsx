@@ -47,10 +47,10 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
             whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 15 } }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", duration: 0.4 }}
-            className="workflow-node relative min-w-[280px] bg-[#09090b] rounded-xl border border-zinc-900 shadow-2xl"
+            className="workflow-node relative min-w-[280px] bg-[#09090b] rounded-lg border border-zinc-800 shadow-xl"
             style={{
                 borderWidth: 1,
-                boxShadow: "0 10px 40px -10px rgba(0,0,0,0.5)"
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" // Softer shadow
             }}
         >
             {/* Header */}
