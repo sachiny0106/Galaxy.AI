@@ -32,7 +32,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             id: "node-3",
             type: NodeType.TEXT,
             position: { x: 350, y: 200 },
-            data: { label: "Description Prompt", text: "Describe this image in detail for a marketing campaign." },
+            data: { label: "Description Prompt", text: "Analyze this image for a high-end marketing campaign. Focus on visual composition, color palette, lighting mood, and key elements that invoke emotion. Provide a structured description suitable for generating creative copy." },
         },
         {
             id: "node-4",
@@ -41,7 +41,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             data: {
                 label: "Generate Description",
                 model: "gemini-2.0-flash",
-                systemPrompt: "",
+                systemPrompt: "You are an award-winning creative director specializing in visual storytelling. Your goal is to deconstruct visual assets into compelling narratives for luxury and tech brands.",
                 userMessage: "",
                 images: [],
                 response: null,
@@ -68,7 +68,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             id: "node-7",
             type: NodeType.TEXT,
             position: { x: 650, y: 350 },
-            data: { label: "Social Post Prompt", text: "Create a compelling social media post that combines this image description with the video frame to promote our brand." },
+            data: { label: "Social Post Prompt", text: "Draft a viral-ready social media post (Instagram & LinkedIn). Synthesize the visual insights from the image description with the context of the video frame. \n\nRequirements:\n- Catchy Hook\n- Engaging Storytelling Body\n- 3-5 Strategic Hashtags\n- Call to Action\n- Tone: Professional yet energetic." },
         },
         {
             id: "node-8",
@@ -77,7 +77,7 @@ export function createSampleWorkflow(): SampleWorkflow {
             data: {
                 label: "Generate Social Post",
                 model: "gemini-2.0-flash",
-                systemPrompt: "You are a creative social media manager.",
+                systemPrompt: "You are a Senior Social Media Strategist for a Fortune 500 tech company. You excel at crafting engaging, high-conversion copy that resonates with modern audiences. You prioritize clarity, impact, and brand voice.",
                 userMessage: "",
                 images: [],
                 response: null,

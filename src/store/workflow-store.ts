@@ -47,7 +47,7 @@ const DEFAULT_NODE_DATA: Record<NodeTypeValue, () => WorkflowNodeData> = {
     [NodeType.LLM]: () => ({
         label: "Run LLM",
         model: "gemini-2.0-flash",
-        systemPrompt: "",
+        systemPrompt: "You are a helpful and intelligent AI assistant. Your goal is to provide clear, concise, and accurate responses based on the user's input and context.",
         userMessage: "",
         images: [],
         response: null,
