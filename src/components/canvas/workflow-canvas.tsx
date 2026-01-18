@@ -102,6 +102,7 @@ export function WorkflowCanvas() {
                     strokeWidth: 3,
                     strokeDasharray: "5 5",
                 }}
+                deleteKeyCode={["Backspace", "Delete"]}
             >
                 <Background
                     variant={BackgroundVariant.Dots}
