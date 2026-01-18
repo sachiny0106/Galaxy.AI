@@ -32,16 +32,8 @@ function ExtractFrameNodeComponent({ id, data, selected }: NodeProps) {
 
             {/* Timestamp Parameter */}
             <div className="relative">
-                <Handle
-                    type="target"
-                    position={Position.Left}
-                    id="timestamp-0"
-                    className="!w-2 !h-2 !-left-3 !bg-zinc-600"
-                    style={{ top: '65%' }}
-                />
                 <label className="text-[10px] text-zinc-500 mb-1 block uppercase flex items-center gap-1">
                     Timestamp (seconds)
-                    {connected.has("timestamp-0") && <div className="w-1 h-1 rounded-full bg-violet-500" />}
                 </label>
                 <input
                     type="number"

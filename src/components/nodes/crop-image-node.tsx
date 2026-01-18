@@ -38,28 +38,19 @@ function CropImageNodeComponent({ id, data, selected }: NodeProps) {
 
             {/* Crop Parameters */}
             <div className="grid grid-cols-2 gap-2 relative">
-                {["xPercent", "yPercent", "widthPercent", "heightPercent"].map((field, i) => (
+                {["xPercent", "yPercent", "widthPercent", "heightPercent"].map((field) => (
                     <div key={field} className="relative group">
-                        {/* Hidden handle for connection logic */}
-                        <Handle
-                            type="target"
-                            position={Position.Left}
-                            id={`${field}-0`}
-                            className="!w-2 !h-2 !-left-3 !bg-zinc-600"
-                            style={{ top: '65%' }}
-                        />
+                        {/* Removed advanced parameter handles to simplify UI */}
                         <label className="text-[10px] text-zinc-500 block uppercase flex items-center gap-1">
                             {field.replace("Percent", "%")}
-                            {connected.has(`${field}-0`) && <div className="w-1 h-1 rounded-full bg-violet-500" />}
                         </label>
                         <input
                             type="number"
-                            className={`input-field py-1 px-2 ${connected.has(`${field}-0`) ? "opacity-50 cursor-not-allowed bg-zinc-900/50" : ""}`}
+                            className="input-field py-1 px-2"
                             value={nodeData[field as keyof CropImageNodeData] as number}
                             onChange={(e) => handleNumericChange(field, e.target.value)}
                             min={0}
                             max={100}
-                            disabled={connected.has(`${field}-0`)}
                         />
                     </div>
                 ))}

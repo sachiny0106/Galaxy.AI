@@ -81,7 +81,7 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
                     position={h.position}
                     id={h.id}
                     className={`
-                        w-3 h-3 border-2 border-[#0a0a0a] transition-colors
+                        transition-colors
                         ${getHandleColor(h.dataType)}
                     `}
                 />
