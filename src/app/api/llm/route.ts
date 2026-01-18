@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { tasks, runs } from "@trigger.dev/sdk/v3";
 import { llmRequestSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
         // Trigger the LLM task
         const handle = await tasks.trigger("llm-gemini", {
-            model: model || "gemini-2.0-flash",
+            model: model || "gemini-2.0-flash", // Update to Gemini 2.0
             systemPrompt,
             userMessage,
             images,
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         const DELAY = 500;
 
         for (let i = 0; i < MAX_RETRIES; i++) {
-            const run = await tasks.retrieve(handle.id);
+            const run = await runs.retrieve(handle.id);
             if (run.status === "COMPLETED" && run.output) {
                 return NextResponse.json(run.output);
             }

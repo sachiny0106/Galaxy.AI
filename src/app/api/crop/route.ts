@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { tasks, runs } from "@trigger.dev/sdk/v3";
 import { cropRequestSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         const DELAY = 400;
 
         for (let i = 0; i < MAX_RETRIES; i++) {
-            const run = await tasks.retrieve(handle.id);
+            const run = await runs.retrieve(handle.id);
             if (run.status === "COMPLETED" && run.output) {
                 return NextResponse.json(run.output);
             }
