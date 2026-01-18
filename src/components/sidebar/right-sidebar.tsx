@@ -22,13 +22,17 @@ function formatTime(date: Date): string {
 
 function StatusBadge({ status }: { status: RunStatus }) {
     const cls = {
-        pending: "badge-pending",
-        running: "badge-warning",
-        success: "badge-success",
-        failed: "badge-error",
+        pending: "bg-zinc-800 text-zinc-400",
+        running: "bg-amber-500/20 text-amber-400 border border-amber-500/20",
+        success: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20",
+        failed: "bg-red-500/20 text-red-400 border border-red-500/20",
     }[status];
 
-    return <span className={`badge ${cls}`}>{status}</span>;
+    return (
+        <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide ${cls}`}>
+            {status}
+        </span>
+    );
 }
 
 function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
@@ -38,56 +42,41 @@ function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
             : Clock;
 
     return (
-        <div
-            style={{
-                padding: "6px 8px",
-                background: "rgba(0,0,0,0.2)",
-                borderRadius: 4,
-                marginBottom: 4,
-                fontSize: 11,
-            }}
-        >
+        <div className="bg-zinc-900/40 rounded border border-zinc-800/50 mb-1 text-[11px] overflow-hidden transition-colors hover:bg-zinc-900/60">
             <div
                 onClick={() => setExpanded(!expanded)}
-                style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                className="flex items-center gap-2 p-2 cursor-pointer select-none"
             >
                 <StatusIcon
                     size={12}
-                    style={{
-                        color: execution.status === "success" ? "var(--success)"
-                            : execution.status === "failed" ? "var(--error)"
-                                : "var(--text-muted)",
-                    }}
+                    className={
+                        execution.status === "success" ? "text-emerald-400"
+                            : execution.status === "failed" ? "text-red-400"
+                                : "text-zinc-500"
+                    }
                 />
-                <span style={{ flex: 1, color: "var(--text-secondary)" }}>
-                    {execution.nodeType} ({execution.nodeId})
+                <span className="flex-1 text-zinc-300 font-medium truncate">
+                    {execution.nodeType.replace(/([A-Z])/g, ' $1').trim()}
+                    <span className="text-zinc-600 font-mono ml-1 text-[10px] opacity-70">({execution.nodeId})</span>
                 </span>
-                <span style={{ color: "var(--text-muted)" }}>
+                <span className="text-zinc-500 font-mono text-[10px]">
                     {formatDuration(execution.duration)}
                 </span>
-                {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                {expanded ? <ChevronUp size={12} className="text-zinc-600" /> : <ChevronDown size={12} className="text-zinc-600" />}
             </div>
 
             {expanded && (
-                <div style={{ marginTop: 6, paddingLeft: 18, color: "var(--text-muted)" }}>
+                <div className="px-2 pb-2 pl-6">
                     {execution.error && (
-                        <div style={{ color: "var(--error)", marginBottom: 4 }}>
+                        <div className="text-red-400 mb-2 bg-red-950/30 p-2 rounded text-[10px] leading-relaxed border border-red-900/50">
                             Error: {execution.error}
                         </div>
                     )}
                     {execution.outputs && (
-                        <div style={{ marginBottom: 4 }}>
-                            <strong>Output:</strong>
-                            <pre style={{
-                                fontSize: 10,
-                                maxHeight: 60,
-                                overflow: "auto",
-                                background: "rgba(0,0,0,0.3)",
-                                padding: 4,
-                                borderRadius: 2,
-                                marginTop: 2,
-                            }}>
-                                {JSON.stringify(execution.outputs, null, 2).substring(0, 200)}
+                        <div className="relative group">
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1 block">Output</span>
+                            <pre className="text-[10px] bg-black/40 p-2 rounded text-zinc-400 overflow-x-auto max-h-32 font-mono scrollbar-thin">
+                                {JSON.stringify(execution.outputs, null, 2)}
                             </pre>
                         </div>
                     )}
@@ -99,26 +88,28 @@ function NodeExecutionItem({ execution }: { execution: NodeExecution }) {
 
 function RunDetailView({ run }: { run: WorkflowRun }) {
     return (
-        <div style={{ padding: 12 }}>
-            <div style={{ marginBottom: 12 }}>
+        <div className="p-3">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
                 <StatusBadge status={run.status} />
-                <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>
+                <span className="text-[10px] text-zinc-500 font-medium">
                     {formatTime(run.startedAt)} • {formatDuration(run.duration)}
                 </span>
             </div>
 
-            <div style={{ fontSize: 12, marginBottom: 8, fontWeight: 500 }}>
-                Node Executions
+            <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">
+                Execution Steps
             </div>
 
             {run.nodeExecutions.length === 0 ? (
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                    No node execution details available
+                <div className="text-xs text-zinc-600 italic px-1">
+                    No execution data recorded.
                 </div>
             ) : (
-                run.nodeExecutions.map((exec) => (
-                    <NodeExecutionItem key={exec.nodeId} execution={exec} />
-                ))
+                <div className="space-y-1">
+                    {run.nodeExecutions.map((exec) => (
+                        <NodeExecutionItem key={exec.nodeId} execution={exec} />
+                    ))}
+                </div>
             )}
         </div>
     );
@@ -155,13 +146,12 @@ export function RightSidebar() {
                 }),
             });
             if (response.ok) {
-                alert("Workflow saved!");
+                // In a real app we'd show a toast here
             } else {
-                const data = await response.json();
-                alert(data.error || "Failed to save");
+                console.error("Failed to save workflow");
             }
         } catch (e) {
-            alert("Failed to save workflow");
+            console.error("Failed to save workflow", e);
         }
     };
 
@@ -226,7 +216,6 @@ export function RightSidebar() {
                     exec.completedAt = new Date();
                     exec.duration = Date.now() - (exec.startedAt?.getTime() || 0);
                 }
-                console.error(`Node ${nodeId} error:`, error);
             },
         };
 
@@ -252,117 +241,96 @@ export function RightSidebar() {
 
     return (
         <div
-            className={`sidebar glass ${collapsed ? "collapsed" : ""}`}
-            style={{
-                width: collapsed ? 60 : 300,
-                borderRight: "none",
-                borderLeft: "1px solid var(--border)",
-                background: "var(--surface)",
-                backdropFilter: "blur(12px)",
-            }}
+            className={`h-screen border-l border-white/5 transition-all duration-300 flex flex-col glass ${collapsed ? "w-16" : "w-[320px]"}`}
+            style={{ backdropFilter: "blur(20px)" }}
         >
-            <div className="sidebar-header">
+            <div className={`flex items-center h-14 border-b border-white/5 ${collapsed ? "justify-center" : "justify-between px-4"}`}>
+                {!collapsed && (
+                    <span className="font-semibold text-sm text-zinc-100 dark-text-shadow">History</span>
+                )}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="sidebar-toggle"
-                    style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--text-secondary)",
-                        cursor: "pointer",
-                    }}
+                    className="p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                    {collapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+                    {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                 </button>
-                {!collapsed && (
-                    <span style={{ fontWeight: 600, fontSize: 14, marginLeft: 8 }}>History</span>
-                )}
             </div>
 
             {!collapsed && (
-                <>
-                    <div style={{ padding: 12, borderBottom: "1px solid var(--border)", display: "flex", gap: 8 }}>
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+                    <div className="p-3 border-b border-white/5 flex gap-2">
                         <button
-                            className="btn btn-primary"
+                            className={`btn btn-primary flex-1 flex items-center justify-center gap-2 ${isExecuting || nodes.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
                             onClick={handleRunWorkflow}
                             disabled={isExecuting || nodes.length === 0}
-                            style={{ flex: 1 }}
                         >
                             {isExecuting ? (
-                                <div className="flex items-center gap-2">
-                                    <div className="spinner" style={{ width: 16, height: 16 }} />
-                                    <span>Running...</span>
-                                </div>
+                                <>
+                                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="text-xs font-semibold">Running</span>
+                                </>
                             ) : (
-                                <div className="flex items-center gap-2 justify-center">
-                                    <Play size={16} />
-                                    <span>Run Workflow</span>
-                                </div>
+                                <>
+                                    <Play size={14} className="fill-current" />
+                                    <span className="text-xs font-semibold">Run Workflow</span>
+                                </>
                             )}
                         </button>
                         <button
-                            className="btn btn-secondary"
+                            className="btn btn-secondary px-3"
                             onClick={handleSaveWorkflow}
                             title="Save Workflow"
-                            style={{ padding: "8px 12px" }}
                         >
                             <Save size={16} />
                         </button>
                     </div>
 
                     {isHistoryMode && selectedRun ? (
-                        <>
-                            <div
-                                style={{
-                                    padding: "8px 12px",
-                                    background: "rgba(139, 92, 246, 0.2)",
-                                    borderBottom: "1px solid var(--border)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    fontSize: 12,
-                                }}
-                            >
-                                <span>Run Details</span>
+                        <div className="animate-in slide-in-from-right-4 duration-300">
+                            <div className="flex items-center justify-between p-3 bg-violet-500/10 border-b border-violet-500/10">
+                                <span className="text-xs font-medium text-violet-200">Run Details</span>
                                 <button
                                     onClick={exitHistoryMode}
-                                    style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer" }}
+                                    className="text-violet-300 hover:text-white transition-colors"
                                 >
                                     <X size={14} />
                                 </button>
                             </div>
                             <RunDetailView run={selectedRun} />
-                        </>
+                        </div>
                     ) : (
-                        <div className="sidebar-content flex flex-col gap-2">
+                        <div className="p-3 space-y-1">
                             {runs.length === 0 ? (
-                                <div className="text-center text-muted p-5 text-sm">
-                                    <History size={32} className="opacity-50 mb-2 mx-auto" />
-                                    <p>No runs yet</p>
+                                <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
+                                    <History size={32} className="opacity-20 mb-2" />
+                                    <p className="text-xs">No runs yet</p>
                                 </div>
                             ) : (
                                 runs.map((run) => (
                                     <div
                                         key={run.id}
-                                        className={`history-item ${selectedRunId === run.id ? "active" : ""}`}
                                         onClick={() => enterHistoryMode(run.id)}
+                                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 group ${selectedRunId === run.id
+                                                ? "bg-violet-500/10 border-violet-500/20"
+                                                : "bg-zinc-900/20 border-white/5 hover:bg-zinc-800/40 hover:border-white/10"
+                                            }`}
                                     >
-                                        <div className="flex justify-between items-center mb-1.5">
+                                        <div className="flex justify-between items-center mb-2">
                                             <StatusBadge status={run.status} />
-                                            <span className="text-xs text-muted">
+                                            <span className="text-[10px] text-zinc-500 font-mono">
                                                 {formatTime(run.startedAt)}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between text-xs text-secondary">
-                                            <span>{run.scope === "full" ? "Full Run" : "Single Node"}</span>
-                                            <span>{formatDuration(run.duration)}</span>
+                                        <div className="flex justify-between text-[11px] text-zinc-400">
+                                            <span className="group-hover:text-zinc-200 transition-colors">Full Run</span>
+                                            <span className="font-mono text-zinc-600 group-hover:text-zinc-400">{formatDuration(run.duration)}</span>
                                         </div>
                                     </div>
                                 ))
                             )}
                         </div>
                     )}
-                </>
+                </div>
             )}
         </div>
     );
