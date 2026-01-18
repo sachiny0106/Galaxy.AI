@@ -378,30 +378,33 @@ select.input-field {
 /* Handle Styles */
 /* Handle Styles */
 .react-flow__handle {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   background: var(--accent);
   border: 2px solid var(--bg-primary);
-  transition: transform 0.1s, background-color 0.2s;
+  border-radius: 50%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.2);
 }
 
 /* Invisible larger hit area for easier clicking */
 .react-flow__handle::after {
   content: "";
   position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
+  top: -12px;
+  left: -12px;
+  right: -12px;
+  bottom: -12px;
   border-radius: 50%;
   z-index: -1;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.4);
+  transform: scale(1.3);
   background: var(--accent-light);
   border-color: white;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.4);
 }
 
 .react-flow__handle-left {
