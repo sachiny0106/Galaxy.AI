@@ -181,7 +181,10 @@ export const useWorkflowStore = create<WorkflowState>()(
 
                 if (!sourceHandleType || !targetHandleType) return false;
 
-                return sourceHandleType === targetHandleType;
+                // Relaxed validation: Allow any connection if handles exist
+                // This improves usability significantly as requested
+                return true;
+                // return sourceHandleType === targetHandleType;
             },
 
             reset: () => {
