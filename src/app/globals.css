@@ -61,16 +61,16 @@ body {
 
 /* Glassmorphism Utilities */
 .glass {
-  background: rgba(9, 9, 11, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(9, 9, 11, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
 .glass-light {
-  background: var(--surface-light);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-light);
+  background: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Pulsating Glow Animation */
@@ -78,24 +78,24 @@ body {
 
   0%,
   100% {
-    box-shadow: 0 0 30px -5px rgba(124, 58, 237, 0.6);
+    box-shadow: 0 0 20px -5px rgba(124, 58, 237, 0.4);
   }
 
   50% {
-    box-shadow: 0 0 45px -5px rgba(124, 58, 237, 0.8);
+    box-shadow: 0 0 35px -5px rgba(124, 58, 237, 0.6);
   }
 }
 
 .pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 /* Custom Dot Grid Pattern */
 .dot-grid {
-  background-color: var(--bg-primary);
-  background-image: radial-gradient(#3f3f46 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.15;
+  background-color: #050505;
+  background-image: radial-gradient(#27272a 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.08;
 }
 
 /* Animated Edge Flow */

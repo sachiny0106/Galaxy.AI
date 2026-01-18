@@ -47,21 +47,21 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
             whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 15 } }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", duration: 0.4 }}
-            className="workflow-node relative min-w-[280px] bg-[#18181b] rounded-xl border border-zinc-800"
+            className="workflow-node relative min-w-[280px] bg-[#09090b] rounded-xl border border-zinc-900 shadow-2xl"
             style={{
-                // Explicitly set border here to override class styles if needed, but motion handles it
-                borderWidth: 1
+                borderWidth: 1,
+                boxShadow: "0 10px 40px -10px rgba(0,0,0,0.5)"
             }}
         >
             {/* Header */}
-            <div className="flex items-center gap-2 p-3 border-b border-white/5 bg-white/5 rounded-t-xl">
-                <Icon size={16} className="text-violet-500" />
-                <span className="text-sm font-semibold text-zinc-100 tracking-tight">{title}</span>
+            <div className="flex items-center gap-2 p-4 pb-2 border-none">
+                <Icon size={16} className="text-zinc-400" />
+                <span className="text-sm font-medium text-zinc-200 tracking-wide">{title}</span>
                 {isExecuting && (
                     <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="ml-auto w-2 h-2 rounded-full bg-violet-500"
+                        className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500"
                     >
                         <div className="w-full h-full rounded-full bg-violet-500 animate-ping opacity-75" />
                     </motion.div>
