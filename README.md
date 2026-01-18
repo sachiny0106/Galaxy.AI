@@ -41,14 +41,41 @@ A pixel-perfect, drag-and-drop workflow builder for LLM applications. Built with
    ```
 
 3. **Set up environment variables**
-   Create a `.env.local` file with your keys (Clerk, Gemini, Database).
+   Create a `.env.local` file with your keys (Clerk, Gemini, Database, Transloadit, Trigger.dev).
 
 4. **Run the development server**
    ```bash
    npm run dev
    ```
-
    Open [http://localhost:3000](http://localhost:3000) to see the builder.
+
+## Deployment Guide (Free Tier)
+
+This app is designed to be deployed for free using:
+- **Frontend/API**: Vercel
+- **Database**: Supabase or Neon (Postgres)
+- **Auth**: Clerk
+- **Background Jobs**: Trigger.dev Cloud
+
+### 1. Database Setup
+Create a project on [Supabase](https://supabase.com) and get your `DATABASE_URL`.
+
+### 2. Trigger.dev
+Deploy your background tasks:
+```bash
+npx trigger.dev@latest deploy
+```
+Add your env vars to the [Trigger.dev Dashboard](https://cloud.trigger.dev).
+
+### 3. Vercel Deployment
+1. Import the repo to Vercel.
+2. Add the following Environment Variables:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` & `CLERK_SECRET_KEY`
+   - `GEMINI_API_KEY`
+   - `DATABASE_URL`
+   - `TRIGGER_SECRET_KEY`
+   - `NEXT_PUBLIC_TRANSLOADIT_KEY` & `TRANSLOADIT_SECRET`
+3. Deploy!
 
 ## License
 
