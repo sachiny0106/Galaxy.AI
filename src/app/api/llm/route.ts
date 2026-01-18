@@ -40,8 +40,8 @@ export async function POST(req: Request) {
         // To keep the UI working without a massive refactor of the frontend execution engine (polling),
         // we will implement a short-polling loop here in the API route.
 
-        // Wait for up to 10 seconds for the task to complete
-        const MAX_RETRIES = 20;
+        // Wait for up to 30 seconds for the task to complete
+        const MAX_RETRIES = 60;
         const DELAY = 500;
 
         for (let i = 0; i < MAX_RETRIES; i++) {
