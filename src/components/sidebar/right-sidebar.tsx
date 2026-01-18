@@ -309,47 +309,6 @@ export function RightSidebar() {
                         >
                             <Save size={16} />
                         </button>
-                        <div className="w-[1px] bg-white/10 h-6 mx-1" />
-                        <button
-                            className="btn btn-secondary px-3"
-                            onClick={() => {
-                                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ nodes, edges }));
-                                const downloadAnchorNode = document.createElement('a');
-                                downloadAnchorNode.setAttribute("href", dataStr);
-                                downloadAnchorNode.setAttribute("download", "workflow.json");
-                                document.body.appendChild(downloadAnchorNode);
-                                downloadAnchorNode.click();
-                                downloadAnchorNode.remove();
-                            }}
-                            title="Export JSON"
-                        >
-                            <span className="text-[10px] font-mono">EXP</span>
-                        </button>
-                        <label className="btn btn-secondary px-3 cursor-pointer" title="Import JSON">
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept=".json"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                        try {
-                                            const json = JSON.parse(event.target?.result as string);
-                                            if (json.nodes && json.edges) {
-                                                useWorkflowStore.getState().setNodes(json.nodes);
-                                                useWorkflowStore.getState().setEdges(json.edges);
-                                            }
-                                        } catch (err) {
-                                            console.error("Failed to parse workflow JSON", err);
-                                        }
-                                    };
-                                    reader.readAsText(file);
-                                }}
-                            />
-                            <span className="text-[10px] font-mono">IMP</span>
-                        </label>
                     </div>
 
                     {isHistoryMode && selectedRun ? (

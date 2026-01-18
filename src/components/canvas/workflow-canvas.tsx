@@ -114,6 +114,7 @@ export function WorkflowCanvas() {
                 <Controls
                     position="bottom-left"
                     showInteractive={false}
+                    showFitView={false}
                 />
                 <MiniMap
                     position="bottom-right"
