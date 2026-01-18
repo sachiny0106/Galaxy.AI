@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Custom Properties */
 :root {
@@ -47,7 +48,12 @@ body {
   background: var(--bg-primary);
   background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, var(--bg-primary) 60%);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 /* Glassmorphism Utilities */
@@ -58,17 +64,11 @@ body {
   border-right: 1px solid rgba(255, 255, 255, 0.03);
   /* Only right border for sidebar */
   box-shadow: none;
-  
+
 }
 
 .glass-light {
   background: rgba(24, 24, 27, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.glass-light {
-  background: rgba(24, 24, 27, 0.4);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -134,9 +134,10 @@ body {
 }
 
 .node-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .node-content {
@@ -185,14 +186,15 @@ select.input-field {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   border: none;
+  letter-spacing: 0;
 }
 
 .btn-primary {

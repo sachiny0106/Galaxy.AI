@@ -33,7 +33,6 @@ export function Toolbar() {
     const addRun = useHistoryStore((s) => s.addRun);
     const updateRun = useHistoryStore((s) => s.updateRun);
 
-    // Export workflow as JSON
     const handleExport = () => {
         const workflow = {
             name: "Exported Workflow",
@@ -51,7 +50,6 @@ export function Toolbar() {
         URL.revokeObjectURL(url);
     };
 
-    // Import workflow from JSON
     const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -76,19 +74,16 @@ export function Toolbar() {
         e.target.value = "";
     };
 
-    // Run entire workflow
     const handleRunAll = async () => {
         if (nodes.length === 0 || isExecuting) return;
         await executeWorkflow("full");
     };
 
-    // Run only selected node
     const handleRunSelected = async () => {
         if (!selectedNodeId || isExecuting) return;
         await executeWorkflow("single", [selectedNodeId]);
     };
 
-    // Execute workflow with scope
     const executeWorkflow = async (scope: "full" | "single" | "selected", nodeIds?: string[]) => {
         const runId = `run-${Date.now()}`;
         const startTime = Date.now();
@@ -149,7 +144,7 @@ export function Toolbar() {
         }
     };
 
-    // Delete selected node
+
     const handleDelete = () => {
         if (selectedNodeId) {
             deleteNode(selectedNodeId);
@@ -160,20 +155,7 @@ export function Toolbar() {
 
     return (
         <div
-            style={{
-                position: "absolute",
-                top: 12,
-                left: "50%",
-                transform: "translateX(-50%)",
-                zIndex: 10,
-                display: "flex",
-                gap: 8,
-                padding: "8px 12px",
-                background: "var(--surface)",
-                backdropFilter: "blur(12px)",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-            }}
+            className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[var(--surface)] backdrop-blur-md rounded-lg border border-[var(--border)] max-w-[90vw] overflow-x-auto scrollbar-hide shadow-xl"
         >
             <input
                 ref={fileInputRef}

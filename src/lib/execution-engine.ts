@@ -7,7 +7,6 @@ export interface ExecutionContext {
     onNodeError: (nodeId: string, error: string) => void;
 }
 
-// Group nodes into parallel execution levels
 export function getExecutionLevels(nodes: WorkflowNode[], edges: WorkflowEdge[]): string[][] {
     const inDegree = new Map<string, number>();
     const adj = new Map<string, string[]>();
@@ -77,12 +76,10 @@ export async function executeNode(
 ): Promise<Record<string, unknown>> {
     const type = node.type as NodeTypeValue;
 
-    // Simple pass-throughs
     if (type === NodeType.TEXT) return { text: inputs.text || "" };
     if (type === NodeType.UPLOAD_IMAGE) return { image_url: inputs.imageUrl || null };
     if (type === NodeType.UPLOAD_VIDEO) return { video_url: inputs.videoUrl || null };
 
-    // API Calls
     let endpoint = "";
     let body = {};
 
@@ -154,22 +151,17 @@ export async function runWorkflow(
         }
 
         const promise = (async () => {
-            // Find inputs (parent nodes)
             const parentIds = edges
                 .filter((e) => e.target === nodeId)
                 .map((e) => e.source);
 
-            // Wait for all parents to complete
             await Promise.all(parentIds.map((id) => getNodePromise(id)));
 
-            // If we are executing only selected nodes, we might skip upstream execution
-            // But for "runWorkflow" (full), we run everything. 
-            // The recursion ensures we wait for parents.
+
 
             const node = nodes.find((n) => n.id === nodeId);
             if (!node) return;
 
-            // Execute this node
             context.onNodeStart(nodeId);
 
             try {
@@ -181,8 +173,7 @@ export async function runWorkflow(
             } catch (error) {
                 const msg = error instanceof Error ? error.message : "Unknown error";
                 context.onNodeError(nodeId, msg);
-                throw error; // Propagate error upstream/downstream behavior? 
-                // Creating a rejection will stop dependent nodes.
+                throw error;
             }
         })();
 
@@ -190,13 +181,11 @@ export async function runWorkflow(
         return promise;
     };
 
-    // Trigger execution for all nodes (they will auto-wait for dependencies)
-    // We ideally only need to trigger leaf nodes, but triggering all is safe because of the caching in `nodePromises`.
     try {
         await Promise.all(nodes.map((n) => getNodePromise(n.id)));
         return true;
-    } catch (error) {
-        return false; // Error handled in context callbacks
+    } catch {
+        return false;
     }
 }
 
@@ -206,7 +195,6 @@ export async function runSelectedNodes(
     selectedIds: string[],
     context: ExecutionContext
 ): Promise<boolean> {
-    // recursively find dependencies
     const toRun = new Set<string>(selectedIds);
     const addDeps = (id: string) => {
         edges.filter(e => e.target === id).forEach(e => {

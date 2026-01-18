@@ -21,15 +21,6 @@ interface BaseNodeProps {
 export function BaseNode({ id, title, icon: Icon, children, selected, handles = [] }: BaseNodeProps) {
     const isExecuting = useWorkflowStore((s) => s.executingNodes.has(id));
 
-    const getHandleColor = (type?: "text" | "image" | "video") => {
-        switch (type) {
-            case "text": return "bg-blue-500";
-            case "image": return "bg-violet-500";
-            case "video": return "bg-pink-500";
-            default: return "bg-zinc-400";
-        }
-    };
-
     return (
         <motion.div
             layout
@@ -47,16 +38,15 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", duration: 0.4 }}
-            className="workflow-node relative min-w-[280px] bg-[#09090b] rounded-lg border border-zinc-800 shadow-xl"
+            className="workflow-node relative w-72 bg-[#09090b] rounded-xl border border-zinc-800"
             style={{
-                borderWidth: 1,
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" // Softer shadow
+                boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.3)"
             }}
         >
             {/* Header */}
-            <div className="flex items-center gap-2 p-4 pb-2 border-none">
-                <Icon size={16} className="text-zinc-400" />
-                <span className="text-sm font-medium text-zinc-200 tracking-wide">{title}</span>
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800/50">
+                <Icon size={15} className="text-zinc-500" />
+                <span className="text-[13px] font-medium text-zinc-300">{title}</span>
                 {isExecuting && (
                     <motion.div
                         initial={{ scale: 0 }}
@@ -80,10 +70,6 @@ export function BaseNode({ id, title, icon: Icon, children, selected, handles = 
                     type={h.type}
                     position={h.position}
                     id={h.id}
-                    className={`
-                        transition-colors
-                        ${getHandleColor(h.dataType)}
-                    `}
                 />
             ))}
         </motion.div>

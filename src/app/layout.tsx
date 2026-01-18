@@ -35,7 +35,7 @@ export default function RootLayout({
               top: 0,
               right: 0,
               zIndex: 1000,
-              padding: "12px 16px",
+              padding: "13px 16px",
               display: "flex",
               alignItems: "center",
               gap: 12,

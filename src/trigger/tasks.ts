@@ -1,6 +1,5 @@
 import { task } from "@trigger.dev/sdk/v3";
 
-// LLM Task - Calls Gemini API
 export const llmTask = task({
     id: "llm-gemini",
     maxDuration: 120,
@@ -33,7 +32,6 @@ export const llmTask = task({
     },
 });
 
-// Crop Image Task - Uses FFmpeg (Mock for now)
 export const cropImageTask = task({
     id: "crop-image-ffmpeg",
     maxDuration: 60,
@@ -57,7 +55,6 @@ export const cropImageTask = task({
     },
 });
 
-// Extract Frame Task - Uses FFmpeg (Mock for now)
 export const extractFrameTask = task({
     id: "extract-frame-ffmpeg",
     maxDuration: 60,

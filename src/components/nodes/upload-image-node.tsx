@@ -18,7 +18,6 @@ function UploadImageNodeComponent({ id, data, selected }: NodeProps) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Fallback if keys are missing (should generally be present based on check)
         if (!isTransloaditConfigured()) {
             console.warn("Transloadit not configured, falling back to local object URL");
             const url = URL.createObjectURL(file);
@@ -35,7 +34,6 @@ function UploadImageNodeComponent({ id, data, selected }: NodeProps) {
         } catch (err) {
             console.error("Upload failed:", err);
             setError("Upload failed");
-            // Fallback to local for continuity if upload fails
             const url = URL.createObjectURL(file);
             updateNodeData(id, { imageUrl: url, fileName: file.name + " (Local Fallback)" });
         } finally {
