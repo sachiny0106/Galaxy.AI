@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { workflowSchema } from "@/lib/schemas";
 
 // GET /api/workflows - List all workflows for the current user
 export async function GET() {
