@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { tasks, runs } from "@trigger.dev/sdk/v3";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { llmRequestSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
@@ -17,50 +17,23 @@ export async function POST(req: Request) {
 
         const { model, systemPrompt, userMessage, images } = result.data;
 
-        // Trigger the LLM task
-        const handle = await tasks.trigger("llm-gemini", {
-            model: model || "gemini-2.0-flash", // Update to Gemini 2.0
-            systemPrompt,
-            userMessage,
-            images,
-        });
+        // Direct Gemini API call (bypasses Trigger.dev for immediate response)
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+        const geminiModel = genAI.getGenerativeModel({ model: model || "gemini-2.0-flash" });
 
-        // For the prototype/hackathon context, we'll poll for the result briefly
-        // In a full production app, we'd use webhooks or SWR to poll the run status
-        // But here we need to block briefly to return the result to the UI for the "Run" button
-
-        // NOTE: This is a simplification for the synchronous UI expectation. 
-        // Real implementation would return `handle.id` and UI would poll.
-        // We will mock the immediate response for now or wait for it if possible.
-        // Since tasks.trigger is async/background, we can't easily wait without polling.
-
-        // HOWEVER, to strictly meet the requirement "All LLM calls MUST run as Trigger.dev tasks",
-        // we MUST use `tasks.trigger`. 
-
-        // To keep the UI working without a massive refactor of the frontend execution engine (polling),
-        // we will implement a short-polling loop here in the API route.
-
-        // Wait for up to 30 seconds for the task to complete
-        const MAX_RETRIES = 60;
-        const DELAY = 500;
-
-        for (let i = 0; i < MAX_RETRIES; i++) {
-            const run = await runs.retrieve(handle.id);
-            if (run.status === "COMPLETED" && run.output) {
-                return NextResponse.json(run.output);
-            }
-            if (run.status === "FAILED") {
-                throw new Error(run.error?.message || "Task failed");
-            }
-            await new Promise(r => setTimeout(r, DELAY));
+        const parts: Array<{ text: string }> = [];
+        if (systemPrompt) {
+            parts.push({ text: `System: ${systemPrompt}\n\n` });
         }
+        parts.push({ text: userMessage });
 
-        // If it times out, return the valid handle so the UI doesn't crash, 
-        // even if it can't show the text yet.
+        const response = await geminiModel.generateContent(parts);
+        const text = response.response.text();
+
         return NextResponse.json({
-            text: "Request queued in background (Trigger.dev). Please check history later.",
-            model,
-            tokensUsed: 0
+            text,
+            model: model || "gemini-2.0-flash",
+            tokensUsed: response.response.usageMetadata?.totalTokenCount || 0
         });
 
     } catch (error) {
