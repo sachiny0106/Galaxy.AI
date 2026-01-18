@@ -96,6 +96,12 @@ export function WorkflowCanvas() {
                 zoomOnPinch
                 minZoom={0.1}
                 maxZoom={2}
+                connectionRadius={50} // Make it easier to snap connections
+                connectionLineStyle={{
+                    stroke: "var(--accent)",
+                    strokeWidth: 3,
+                    strokeDasharray: "5 5",
+                }}
             >
                 <Background
                     variant={BackgroundVariant.Dots}

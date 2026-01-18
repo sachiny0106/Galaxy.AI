@@ -376,19 +376,48 @@ select.input-field {
 }
 
 /* Handle Styles */
+/* Handle Styles */
 .react-flow__handle {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background: var(--accent);
   border: 2px solid var(--bg-primary);
+  transition: transform 0.1s, background-color 0.2s;
+  z-index: 10;
+}
+
+/* Invisible larger hit area for easier clicking */
+.react-flow__handle::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.4);
+  background: var(--accent-light);
+  border-color: white;
 }
 
 .react-flow__handle-left {
-  left: -5px;
+  left: -6px;
 }
 
 .react-flow__handle-right {
-  right: -5px;
+  right: -6px;
+}
+
+/* Connection Line Preview */
+.react-flow__connection-path {
+  stroke: var(--accent) !important;
+  stroke-width: 3px !important;
+  stroke-dasharray: 5 5 !important;
+  animation: edge-flow 0.5s linear infinite;
 }
 
 /* Loading Spinner */
