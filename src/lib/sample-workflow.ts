@@ -27,7 +27,7 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             type: NodeType.CROP_IMAGE,
             position: { x: 400, y: 50 },
             data: {
-                label: "Crop Product (80%)",
+                label: "Crop Image Node",
                 xPercent: 10,
                 yPercent: 10,
                 widthPercent: 80,
@@ -59,7 +59,7 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             type: NodeType.EXTRACT_FRAME,
             position: { x: 400, y: 500 },
             data: {
-                label: "Extract Frame (50%)",
+                label: "Extract Frame Node",
                 videoUrl: null,
                 timestamp: 5, // Approximate 50% for short video
                 outputUrl: null
@@ -70,7 +70,7 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             type: NodeType.LLM,
             position: { x: 800, y: 200 },
             data: {
-                label: "LLM #1: Description",
+                label: "LLM Node #1",
                 model: "gemini-2.0-flash",
                 systemPrompt: "",
                 userMessage: "",
@@ -93,7 +93,7 @@ export const SAMPLE_WORKFLOW: { nodes: WorkflowNode[]; edges: WorkflowEdge[] } =
             type: NodeType.LLM,
             position: { x: 1200, y: 300 },
             data: {
-                label: "LLM #2: Final Tweet",
+                label: "LLM Node #2",
                 model: "gemini-2.0-flash",
                 systemPrompt: "",
                 userMessage: "",

@@ -145,14 +145,31 @@ export async function runWorkflow(
     edges: WorkflowEdge[],
     context: ExecutionContext
 ): Promise<boolean> {
-    const levels = getExecutionLevels(nodes, edges);
+    const nodePromises = new Map<string, Promise<void>>();
+    const completedNodes = new Set<string>();
 
-    for (const level of levels) {
-        // Run entire level in parallel
-        await Promise.all(level.map(async (nodeId) => {
+    const getNodePromise = (nodeId: string): Promise<void> => {
+        if (nodePromises.has(nodeId)) {
+            return nodePromises.get(nodeId)!;
+        }
+
+        const promise = (async () => {
+            // Find inputs (parent nodes)
+            const parentIds = edges
+                .filter((e) => e.target === nodeId)
+                .map((e) => e.source);
+
+            // Wait for all parents to complete
+            await Promise.all(parentIds.map((id) => getNodePromise(id)));
+
+            // If we are executing only selected nodes, we might skip upstream execution
+            // But for "runWorkflow" (full), we run everything. 
+            // The recursion ensures we wait for parents.
+
             const node = nodes.find((n) => n.id === nodeId);
             if (!node) return;
 
+            // Execute this node
             context.onNodeStart(nodeId);
 
             try {
@@ -160,15 +177,27 @@ export async function runWorkflow(
                 const outputs = await executeNode(node, inputs);
                 context.nodeOutputs.set(nodeId, outputs);
                 context.onNodeComplete(nodeId, outputs);
+                completedNodes.add(nodeId);
             } catch (error) {
                 const msg = error instanceof Error ? error.message : "Unknown error";
                 context.onNodeError(nodeId, msg);
-                throw error;
+                throw error; // Propagate error upstream/downstream behavior? 
+                // Creating a rejection will stop dependent nodes.
             }
-        }));
-    }
+        })();
 
-    return true;
+        nodePromises.set(nodeId, promise);
+        return promise;
+    };
+
+    // Trigger execution for all nodes (they will auto-wait for dependencies)
+    // We ideally only need to trigger leaf nodes, but triggering all is safe because of the caching in `nodePromises`.
+    try {
+        await Promise.all(nodes.map((n) => getNodePromise(n.id)));
+        return true;
+    } catch (error) {
+        return false; // Error handled in context callbacks
+    }
 }
 
 export async function runSelectedNodes(
