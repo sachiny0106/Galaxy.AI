@@ -5,7 +5,7 @@ import { WorkflowCanvas } from "@/components/canvas";
 import { LeftSidebar, RightSidebar } from "@/components/sidebar";
 import { Toolbar } from "@/components/toolbar";
 import { useWorkflowStore } from "@/store/workflow-store";
-import { createSampleWorkflow } from "@/lib/sample-workflow";
+import { SAMPLE_WORKFLOW } from "@/lib/sample-workflow";
 
 function WorkflowEditor() {
   const setNodes = useWorkflowStore((s) => s.setNodes);
@@ -15,9 +15,8 @@ function WorkflowEditor() {
 
   useEffect(() => {
     if (!initialized && nodes.length === 0) {
-      const sample = createSampleWorkflow();
-      setNodes(sample.nodes);
-      setEdges(sample.edges);
+      setNodes(SAMPLE_WORKFLOW.nodes);
+      setEdges(SAMPLE_WORKFLOW.edges);
       setInitialized(true);
     }
   }, [initialized, nodes.length, setNodes, setEdges]);
