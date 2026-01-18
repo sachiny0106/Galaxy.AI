@@ -278,6 +278,17 @@ export function RightSidebar() {
                         </button>
                         <button
                             className="btn btn-secondary px-3"
+                            onClick={() => {
+                                const { SAMPLE_WORKFLOW } = require("@/lib/sample-workflow");
+                                useWorkflowStore.getState().setNodes(SAMPLE_WORKFLOW.nodes);
+                                useWorkflowStore.getState().setEdges(SAMPLE_WORKFLOW.edges);
+                            }}
+                            title="Load Sample Workflow"
+                        >
+                            <span className="text-[10px] font-mono">SAMPLE</span>
+                        </button>
+                        <button
+                            className="btn btn-secondary px-3"
                             onClick={handleSaveWorkflow}
                             title="Save Workflow"
                         >
