@@ -4,31 +4,21 @@
 :root {
   /* Weavy Design System Colors */
   --bg-primary: #0a0a0a;
-  /* Deep Matte Black */
   --bg-secondary: #09090b;
-  /* Zinc 950 */
+
   --surface: rgba(9, 9, 11, 0.8);
-  /* Zinc 950 / 80% opacity */
   --surface-light: rgba(24, 24, 27, 0.6);
-  /* Zinc 900 / 60% opacity */
 
   --border: rgba(255, 255, 255, 0.05);
-  /* White / 5% opacity for panels */
   --border-light: rgba(255, 255, 255, 0.1);
 
   --text-primary: #f4f4f5;
-  /* Zinc 100 */
   --text-secondary: #a1a1aa;
-  /* Zinc 400 */
   --text-muted: #71717a;
-  /* Zinc 500 */
 
   --accent: #7c3aed;
-  /* Violet 600 - Primary Brand */
   --accent-light: #8b5cf6;
-  /* Violet 500 */
   --accent-glow: rgba(124, 58, 237, 0.6);
-  /* Violet Glow Spec */
 
   --success: #22c55e;
   --error: #ef4444;
@@ -59,7 +49,7 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Glassmorphism Utilities - Simplified for Matte Look */
+/* Glassmorphism Utilities */
 .glass {
   background: rgba(9, 9, 11, 0.7);
   /* More opaque */
