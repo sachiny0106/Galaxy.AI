@@ -58,7 +58,7 @@ body {
   border-right: 1px solid rgba(255, 255, 255, 0.03);
   /* Only right border for sidebar */
   box-shadow: none;
-  /* Remove heavy shadow */
+  
 }
 
 .glass-light {
@@ -115,9 +115,6 @@ body {
 }
 
 /* Node Styles - Base styles only, animations handled by Framer Motion */
-.workflow-node {
-  /* Motion handles transform/border/shadow */
-}
 
 /* Removed hover/selected CSS to avoid conflict with Motion */
 
