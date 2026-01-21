@@ -1,4 +1,4 @@
-**Live**: galaxy-ai-virid.vercel.app
+[Live Demo](galaxy-ai-virid.vercel.app)
 
 # Galaxy.AI - LLM Workflow Builder
 
